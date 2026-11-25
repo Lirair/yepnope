@@ -1,0 +1,20 @@
+{
+  "name": "YepNope — Decisioni di gruppo in un secondo",
+  "short_name": "YepNope",
+  "description": "Crea una stanza, condividi il link e fai swipe con gli amici fino al primo match unanime.",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FAFAFB",
+  "theme_color": "#0D0F12",
+  "lang": "it-IT",
+  "categories": ["social", "entertainment", "lifestyle"],
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

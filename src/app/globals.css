@@ -1,0 +1,71 @@
+@import "tailwindcss";
+
+:root {
+  --bg: #f6f6f4;
+  --surface: #ffffff;
+  --surface-muted: #efefec;
+  --ink: #111317;
+  --ink-muted: #5c6370;
+  --border: rgba(17, 19, 23, 0.09);
+  --yep: #22c55e;
+  --yep-strong: #16a34a;
+  --nope: #f43f5e;
+  --nope-strong: #e11d48;
+  --card-shadow: 0 18px 40px -16px rgba(17, 19, 23, 0.16), 0 4px 12px -4px rgba(17, 19, 23, 0.06);
+}
+
+.dark {
+  --bg: #0d0f12;
+  --surface: #16191f;
+  --surface-muted: #1e222b;
+  --ink: #f8fafc;
+  --ink-muted: #94a3b8;
+  --border: rgba(255, 255, 255, 0.09);
+  --card-shadow: 0 22px 46px -14px rgba(0, 0, 0, 0.58), 0 6px 16px -4px rgba(0, 0, 0, 0.35);
+}
+
+@theme inline {
+  --color-background: var(--bg);
+  --color-foreground: var(--ink);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-muted: var(--ink-muted);
+  --color-yep: var(--yep);
+  --color-nope: var(--nope);
+  --font-sans: var(--font-jakarta), system-ui, -apple-system, sans-serif;
+  --font-display: var(--font-space), var(--font-jakarta), system-ui, sans-serif;
+}
+
+html,
+body {
+  background-color: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  overscroll-behavior-y: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.app-shell {
+  min-height: 100dvh;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.card-elevated {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--card-shadow);
+}
+
+.surface-panel {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
