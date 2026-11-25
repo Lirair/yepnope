@@ -11,6 +11,7 @@ import {
   Plus,
   ExternalLink,
   Sparkles,
+  Check,
 } from "lucide-react";
 import type { CardItem, Participant, Room } from "@/types/yepnope";
 import { CardVisual } from "@/components/CardVisual";
@@ -20,6 +21,8 @@ import {
   buildDeliverooUrl,
   buildGoogleMapsUrl,
   getInitials,
+  getPastelAvatar,
+  triggerHaptic,
 } from "@/lib/utils";
 
 interface MatchCelebrationProps {
@@ -37,41 +40,52 @@ export function MatchCelebration({
   onContinue,
   resuming,
 }: MatchCelebrationProps) {
-  const { t } = useApp();
+  const { locale, t, activeSeasonalTheme } = useApp();
   const activeParticipants = participants.filter((p) => p.is_active);
+  const isFestive = activeSeasonalTheme.id !== "base";
 
   useEffect(() => {
-    const colors = ["#22C55E", "#F43F5E", "#FACC15", "#38BDF8", "#FFFFFF"];
+    // Celebratory double-pulse haptic feedback on Match
+    triggerHaptic([30, 50, 30]);
+
+    const colors = activeSeasonalTheme.confettiColors;
+    const shapes = activeSeasonalTheme.confettiShapes ?? ["square", "circle"];
 
     confetti({
-      particleCount: 55,
-      spread: 72,
-      origin: { y: 0.58 },
+      particleCount: 46,
+      spread: 70,
+      startVelocity: 34,
+      origin: { y: 0.54 },
       colors,
+      shapes,
       disableForReducedMotion: true,
     });
 
     const timer = setTimeout(() => {
       confetti({
-        particleCount: 32,
+        particleCount: 24,
         angle: 60,
-        spread: 55,
-        origin: { x: 0.08, y: 0.65 },
+        spread: 52,
+        startVelocity: 30,
+        origin: { x: 0.08, y: 0.62 },
         colors,
+        shapes,
         disableForReducedMotion: true,
       });
       confetti({
-        particleCount: 32,
+        particleCount: 24,
         angle: 120,
-        spread: 55,
-        origin: { x: 0.92, y: 0.65 },
+        spread: 52,
+        startVelocity: 30,
+        origin: { x: 0.92, y: 0.62 },
         colors,
+        shapes,
         disableForReducedMotion: true,
       });
-    }, 240);
+    }, 220);
 
     return () => clearTimeout(timer);
-  }, [card.id]);
+  }, [card.id, activeSeasonalTheme.id, activeSeasonalTheme.confettiColors, activeSeasonalTheme.confettiShapes]);
 
   const mapsUrl =
     card.category === "food"
@@ -88,61 +102,99 @@ export function MatchCelebration({
 
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.94 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ type: "spring", stiffness: 320, damping: 25 }}
-      className="w-full max-w-[380px] mx-auto flex flex-col items-center pb-8"
+      initial={{ opacity: 0, scale: 0.94, y: 10 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      transition={{ type: "spring", stiffness: 320, damping: 26 }}
+      className="w-full max-w-[368px] mx-auto flex flex-col items-center pb-10"
     >
-      {/* 9:16 Story-ready vertical card frame (optimized for screenshots / IG & WhatsApp Stories) */}
-      <div className="w-full rounded-[32px] p-3.5 bg-[#0D0F12] text-white shadow-2xl border border-white/10">
-        {/* Story header */}
-        <div className="px-2 pt-1 pb-3 flex items-center justify-between gap-2">
-          <div>
-            <div className="inline-flex items-center gap-1.5 text-[#22C55E] font-display font-extrabold text-xs tracking-[0.14em] uppercase">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>{t.room.matchEyebrow}</span>
-            </div>
-            <p className="text-xs text-white/70 font-medium mt-0.5">
-              {t.room.matchSubtitle} ({activeParticipants.length}/{activeParticipants.length})
-            </p>
-          </div>
+      {/* 9:16 Story-Ready Vertical Card with Amber -> Magenta Match Gradient Border */}
+      <div className="w-full rounded-[34px] p-[2.5px] match-gradient shadow-[0_24px_56px_-14px_rgba(236,72,153,0.34)]">
+        <div className="w-full aspect-[9/15.2] min-h-[530px] rounded-[31.5px] p-4 bg-[#0E0F13] text-white flex flex-col justify-between gap-3.5 relative overflow-hidden">
+          {/* Subtle ambient radial glow inside story card */}
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute -top-24 left-1/2 -translate-x-1/2 w-72 h-48 rounded-full opacity-25 blur-3xl match-gradient"
+          />
 
-          <div className="flex -space-x-2">
-            {activeParticipants.slice(0, 5).map((p) => (
-              <span
-                key={p.id}
-                title={p.nickname}
-                style={{ backgroundColor: p.avatar_color }}
-                className="w-7 h-7 rounded-full border-2 border-[#0D0F12] flex items-center justify-center text-[10px] font-extrabold text-white"
-              >
-                {getInitials(p.nickname)}
+          {/* Story Header: "È UN MATCH!" */}
+          <div className="relative z-10 text-center pt-1">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full match-gradient text-white text-[11px] font-bold tracking-wider uppercase shadow-sm">
+              {isFestive ? (
+                <span aria-hidden="true">{activeSeasonalTheme.badgeEmoji}</span>
+              ) : (
+                <Sparkles className="w-3.5 h-3.5" />
+              )}
+              <span>
+                {isFestive
+                  ? `${locale === "en" ? activeSeasonalTheme.nameEn : activeSeasonalTheme.name} · ${t.room.matchSubtitle}`
+                  : t.room.matchSubtitle}
               </span>
-            ))}
+            </div>
+            <h1 className="mt-2 font-display font-extrabold text-[30px] leading-none tracking-tight match-text-gradient">
+              {t.room.matchEyebrow}
+            </h1>
           </div>
-        </div>
 
-        {/* Winning Card visual */}
-        <div className="relative w-full aspect-[3/4] rounded-[24px] overflow-hidden">
-          <CardVisual card={card} listTitle={room.settings.title} />
-        </div>
+          {/* Framed Winner Image / Poster */}
+          <div className="relative z-10 flex-1 min-h-0 w-full rounded-[24px] overflow-hidden ring-1 ring-white/15 shadow-2xl">
+            <CardVisual card={card} listTitle={room.settings.title} />
+          </div>
 
-        {/* Story footer watermark */}
-        <div className="pt-3 pb-1 px-2 flex items-center justify-between">
-          <span className="text-[11px] font-semibold text-white/60">
-            {t.room.decidedWith}
-          </span>
-          <Logo size="sm" />
+          {/* Overlapping Yep Participants Row */}
+          <div className="relative z-10 flex items-center justify-between gap-2 px-1">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="flex -space-x-2 shrink-0">
+                {activeParticipants.slice(0, 5).map((p) => {
+                  const pastel = getPastelAvatar(p.nickname);
+                  return (
+                    <span
+                      key={p.id}
+                      title={p.nickname}
+                      style={{
+                        backgroundColor: pastel.bg,
+                        color: pastel.text,
+                      }}
+                      className="w-8 h-8 rounded-full border-2 border-[#0E0F13] flex items-center justify-center font-display text-[11px] font-extrabold shadow-xs"
+                    >
+                      {getInitials(p.nickname)}
+                    </span>
+                  );
+                })}
+                {activeParticipants.length > 5 && (
+                  <span className="w-8 h-8 rounded-full border-2 border-[#0E0F13] bg-white/15 flex items-center justify-center text-[10px] font-bold text-white">
+                    +{activeParticipants.length - 5}
+                  </span>
+                )}
+              </div>
+              <span className="inline-flex items-center gap-1 text-xs font-semibold text-white/85 truncate">
+                <Check className="w-3.5 h-3.5 text-[#10B981] stroke-[3] shrink-0" />
+                <span className="truncate">{t.room.matchSubtitle}</span>
+              </span>
+            </div>
+
+            <span className="text-[11px] font-bold text-white/60 tabular-nums shrink-0">
+              {activeParticipants.length}/{activeParticipants.length}
+            </span>
+          </div>
+
+          {/* Discrete Watermark Footer for Stories */}
+          <div className="relative z-10 pt-2 border-t border-white/10 px-1 flex items-center justify-between">
+            <span className="text-[11px] font-medium text-white/55">
+              {t.room.decidedWith}
+            </span>
+            <Logo size="sm" />
+          </div>
         </div>
       </div>
 
-      {/* Contextual CTAs */}
+      {/* Primary Contextual CTAs */}
       {mapsUrl && deliverooUrl && (
         <div className="w-full mt-4 grid grid-cols-1 gap-2.5">
           <a
             href={mapsUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="w-full py-3.5 px-4 rounded-2xl bg-[#22C55E] hover:bg-[#16A34A] text-white font-bold text-sm flex items-center justify-center gap-2 shadow-md shadow-[#22C55E]/25 active:scale-[0.98] transition"
+            className="w-full py-3.5 px-4 rounded-2xl bg-[#10B981] hover:bg-[#059669] text-white font-display font-extrabold text-[15px] tracking-tight flex items-center justify-center gap-2 yep-glow active:scale-[0.97] transition-transform"
           >
             <MapPin className="w-4 h-4" />
             <span>{t.room.searchMaps}</span>
@@ -151,7 +203,7 @@ export function MatchCelebration({
             href={deliverooUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="w-full py-3.5 px-4 rounded-2xl bg-[#00CCBC] hover:bg-[#00b5a7] text-slate-950 font-bold text-sm flex items-center justify-center gap-2 active:scale-[0.98] transition"
+            className="w-full py-3.5 px-4 rounded-2xl bg-[#00CCBC] hover:bg-[#00b5a7] text-slate-950 font-display font-extrabold text-[15px] tracking-tight flex items-center justify-center gap-2 active:scale-[0.97] transition-transform"
           >
             <ShoppingBag className="w-4 h-4" />
             <span>{t.room.orderDeliveroo}</span>
@@ -165,7 +217,7 @@ export function MatchCelebration({
             href={tmdbUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="w-full py-3.5 px-4 rounded-2xl surface-panel font-bold text-sm flex items-center justify-center gap-2 hover:opacity-85 active:scale-[0.98] transition"
+            className="w-full py-3.5 px-4 rounded-2xl surface-panel font-display font-bold text-sm flex items-center justify-center gap-2 hover:opacity-90 active:scale-[0.97] transition-transform"
           >
             <ExternalLink className="w-4 h-4" />
             <span>{t.room.openTmdb}</span>
@@ -173,13 +225,13 @@ export function MatchCelebration({
         </div>
       )}
 
-      {/* Next Actions */}
+      {/* Secondary Actions */}
       <div className="w-full mt-3 grid grid-cols-2 gap-2.5">
         <button
           type="button"
           onClick={onContinue}
           disabled={resuming}
-          className="py-3.5 px-3 rounded-2xl surface-panel font-bold text-sm flex items-center justify-center gap-1.5 hover:opacity-85 active:scale-[0.98] transition cursor-pointer disabled:opacity-50"
+          className="py-3.5 px-3 rounded-2xl surface-panel font-display font-bold text-sm flex items-center justify-center gap-1.5 hover:opacity-90 active:scale-[0.97] transition-transform cursor-pointer disabled:opacity-50"
         >
           <RotateCw className={`w-4 h-4 ${resuming ? "animate-spin" : ""}`} />
           <span>{t.room.continueSwiping}</span>
@@ -187,7 +239,7 @@ export function MatchCelebration({
 
         <Link
           href="/"
-          className="py-3.5 px-3 rounded-2xl bg-foreground text-background font-bold text-sm flex items-center justify-center gap-1.5 hover:opacity-90 active:scale-[0.98] transition"
+          className="py-3.5 px-3 rounded-2xl bg-foreground text-background font-display font-bold text-sm flex items-center justify-center gap-1.5 hover:opacity-90 active:scale-[0.97] transition-transform"
         >
           <Plus className="w-4 h-4" />
           <span>{t.room.newRoom}</span>

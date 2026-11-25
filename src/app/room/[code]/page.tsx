@@ -35,16 +35,18 @@ import {
   computeTopOptions,
   generateFunNickname,
   getInitials,
+  getPastelAvatar,
   loadLastNickname,
   loadParticipantSession,
   saveParticipantSession,
 } from "@/lib/utils";
+import { isValidSeasonalThemeId } from "@/lib/themes";
 import type { CardItem, Participant, RoomSnapshot } from "@/types/yepnope";
 
 export default function RoomPage() {
   const params = useParams<{ code?: string }>();
   const rawCode = (params?.code ?? "").toUpperCase();
-  const { locale, t } = useApp();
+  const { locale, t, setRoomThemeOverride } = useApp();
   const demo = isDemoMode();
 
   const [snapshot, setSnapshot] = useState<RoomSnapshot | null>(null);
@@ -104,6 +106,21 @@ export default function RoomPage() {
       unsubscribe();
     };
   }, [rawCode]);
+
+  // Apply the host's saved room theme_id so all invited guests see the exact same festive theme
+  const savedRoomThemeId =
+    snapshot?.room.theme_id ?? snapshot?.room.settings?.themeId ?? null;
+
+  useEffect(() => {
+    if (savedRoomThemeId && isValidSeasonalThemeId(savedRoomThemeId)) {
+      setRoomThemeOverride(savedRoomThemeId);
+    } else {
+      setRoomThemeOverride(null);
+    }
+    return () => {
+      setRoomThemeOverride(null);
+    };
+  }, [savedRoomThemeId, setRoomThemeOverride]);
 
   const currentParticipant: Participant | null = useMemo(() => {
     if (!snapshot || !participantId) return null;
@@ -259,7 +276,7 @@ export default function RoomPage() {
       <div className="min-h-[100dvh] flex flex-col">
         <TopBar backHref="/" />
         <main className="flex-1 flex flex-col items-center justify-center gap-3 px-4">
-          <Loader2 className="w-8 h-8 animate-spin text-[#22C55E]" />
+          <Loader2 className="w-8 h-8 animate-spin text-[#10B981]" />
           <p className="text-sm font-semibold text-muted">{t.room.loading}</p>
         </main>
       </div>
@@ -272,16 +289,16 @@ export default function RoomPage() {
       <div className="min-h-[100dvh] flex flex-col">
         <TopBar backHref="/" />
         <main className="flex-1 w-full max-w-md mx-auto px-4 flex flex-col items-center justify-center text-center gap-4">
-          <div className="w-16 h-16 rounded-3xl bg-[#F43F5E]/15 text-[#F43F5E] flex items-center justify-center text-3xl font-extrabold">
+          <div className="w-16 h-16 rounded-3xl bg-[#F43F5E]/15 text-[#F43F5E] flex items-center justify-center text-3xl font-display font-extrabold">
             ?
           </div>
-          <h1 className="font-display text-2xl font-extrabold">
+          <h1 className="font-display text-2xl font-extrabold tracking-tight">
             {t.room.notFoundTitle}
           </h1>
           <p className="text-sm text-muted max-w-[32ch]">{t.room.notFoundDesc}</p>
           <Link
             href="/"
-            className="mt-2 py-3.5 px-6 rounded-2xl bg-[#22C55E] text-white font-bold text-sm inline-flex items-center gap-2 hover:bg-[#16A34A] transition"
+            className="mt-2 py-3.5 px-6 rounded-2xl bg-[#10B981] text-white font-display font-extrabold text-sm inline-flex items-center gap-2 hover:bg-[#059669] yep-glow active:scale-[0.97] transition-transform"
           >
             <Plus className="w-4 h-4" />
             <span>{t.room.createNew}</span>
@@ -299,10 +316,10 @@ export default function RoomPage() {
         <main className="flex-1 w-full max-w-md mx-auto px-4 py-8 flex flex-col justify-center">
           <form
             onSubmit={handleJoinSubmit}
-            className="rounded-[28px] p-6 card-elevated flex flex-col gap-4"
+            className="rounded-3xl p-6 card-elevated flex flex-col gap-4"
           >
             <div>
-              <span className="inline-block px-3 py-1 rounded-full text-xs font-extrabold tracking-[0.14em] bg-[#22C55E]/15 text-[#16A34A] dark:text-[#4ADE80]">
+              <span className="inline-block px-3 py-1 rounded-full text-xs font-extrabold tracking-[0.14em] bg-[#10B981]/15 text-[#059669] dark:text-[#34D399]">
                 {snapshot.room.code}
               </span>
               <h1 className="mt-3 font-display text-2xl font-extrabold tracking-tight">
@@ -321,16 +338,16 @@ export default function RoomPage() {
                 value={joinNickname}
                 onChange={(e) => setJoinNickname(e.target.value)}
                 placeholder={t.setup.nicknamePlaceholder}
-                className="flex-1 h-12 px-4 rounded-2xl bg-surface-muted font-semibold text-sm focus:outline-none focus:ring-2 focus:ring-[#22C55E]"
+                className="flex-1 h-12 px-4 rounded-2xl bg-surface-muted font-semibold text-sm focus:outline-none focus:ring-2 focus:ring-[#10B981]"
               />
               <button
                 type="button"
                 onClick={() => setJoinNickname(generateFunNickname(locale))}
-                className="h-12 px-3.5 rounded-2xl bg-surface-muted hover:opacity-80 active:scale-95 transition flex items-center justify-center cursor-pointer"
+                className="h-12 px-3.5 rounded-2xl bg-surface-muted hover:opacity-85 active:scale-[0.97] transition-transform flex items-center justify-center cursor-pointer"
                 aria-label={t.setup.randomName}
                 title={t.setup.randomName}
               >
-                <Dices className="w-5 h-5 text-[#22C55E]" />
+                <Dices className="w-5 h-5 text-[#10B981]" />
               </button>
             </div>
 
@@ -341,7 +358,7 @@ export default function RoomPage() {
             <button
               type="submit"
               disabled={joining}
-              className="w-full py-4 rounded-2xl bg-[#22C55E] hover:bg-[#16A34A] text-white font-display font-extrabold text-base flex items-center justify-center gap-2 shadow-lg shadow-[#22C55E]/25 active:scale-[0.98] transition cursor-pointer disabled:opacity-60"
+              className="w-full py-4 rounded-2xl bg-[#10B981] hover:bg-[#059669] text-white font-display font-extrabold text-base tracking-tight flex items-center justify-center gap-2 yep-glow active:scale-[0.97] transition-transform cursor-pointer disabled:opacity-60"
             >
               {joining ? (
                 <>
@@ -372,13 +389,13 @@ export default function RoomPage() {
             <button
               type="button"
               onClick={handleQuickShare}
-              className="h-9 px-3 rounded-full text-xs font-extrabold tracking-wider surface-panel flex items-center gap-1.5 hover:opacity-85 active:scale-95 transition cursor-pointer"
+              className="h-9 px-3 rounded-full text-xs font-extrabold tracking-wider surface-panel flex items-center gap-1.5 hover:opacity-90 active:scale-[0.97] transition-transform cursor-pointer"
               title={t.room.shareButton}
             >
               {copiedInline ? (
-                <Check className="w-3.5 h-3.5 text-[#22C55E]" />
+                <Check className="w-3.5 h-3.5 text-[#10B981]" />
               ) : (
-                <Share2 className="w-3.5 h-3.5 text-[#22C55E]" />
+                <Share2 className="w-3.5 h-3.5 text-[#10B981]" />
               )}
               <span>{room.code}</span>
             </button>
@@ -404,19 +421,27 @@ export default function RoomPage() {
         {room.status === "playing" && (
           <div className="flex-1 flex flex-col items-center">
             {/* Compact Live Header: Active Participants + Card Progress */}
-            <div className="w-full max-w-[372px] mb-3 flex items-center justify-between gap-2">
+            <div className="relative z-20 w-full max-w-[380px] mb-2.5 flex items-center justify-between gap-2">
               <div className="flex items-center gap-2 min-w-0">
                 <div className="flex -space-x-2">
-                  {activeParticipants.slice(0, 5).map((p) => (
-                    <span
-                      key={p.id}
-                      title={`${p.nickname} (${Math.min(p.current_index, totalCards)}/${totalCards})`}
-                      style={{ backgroundColor: p.avatar_color }}
-                      className="w-7 h-7 rounded-full border-2 border-[var(--bg)] flex items-center justify-center text-[10px] font-extrabold text-white shadow-xs"
-                    >
-                      {getInitials(p.nickname)}
-                    </span>
-                  ))}
+                  {activeParticipants.slice(0, 5).map((p) => {
+                    const pastel = getPastelAvatar(p.nickname);
+                    return (
+                      <div key={p.id} className="relative">
+                        <span
+                          title={`${p.nickname} (${Math.min(p.current_index, totalCards)}/${totalCards})`}
+                          style={{
+                            backgroundColor: pastel.bg,
+                            color: pastel.text,
+                          }}
+                          className="w-7 h-7 rounded-full border-2 border-[var(--bg)] flex items-center justify-center font-display text-[10px] font-extrabold shadow-xs"
+                        >
+                          {getInitials(p.nickname)}
+                        </span>
+                        <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full bg-[#10B981] ring-[1.5px] ring-[var(--bg)]" />
+                      </div>
+                    );
+                  })}
                   {activeParticipants.length > 5 && (
                     <span className="w-7 h-7 rounded-full border-2 border-[var(--bg)] bg-surface-muted flex items-center justify-center text-[10px] font-bold">
                       +{activeParticipants.length - 5}
@@ -428,7 +453,7 @@ export default function RoomPage() {
                   <button
                     type="button"
                     onClick={handleAddDemoFriend}
-                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-500/15 text-amber-800 dark:text-amber-200 hover:bg-amber-500/25 transition cursor-pointer"
+                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-500/15 text-amber-800 dark:text-amber-200 hover:bg-amber-500/25 active:scale-[0.97] transition-transform cursor-pointer"
                   >
                     <UserPlus className="w-3 h-3" />
                     <span>+ Demo</span>
@@ -440,7 +465,7 @@ export default function RoomPage() {
               <div className="flex items-center gap-2 shrink-0">
                 <div className="w-16 h-1.5 rounded-full bg-surface-muted overflow-hidden">
                   <div
-                    className="h-full bg-[#22C55E] rounded-full transition-all duration-300"
+                    className="h-full bg-[#10B981] rounded-full transition-all duration-300"
                     style={{
                       width: `${Math.min(
                         100,
@@ -456,7 +481,7 @@ export default function RoomPage() {
             </div>
 
             {activeParticipants.length < 2 && !userFinishedDeck && (
-              <p className="w-full max-w-[372px] mb-2.5 text-[11px] font-semibold text-muted text-center bg-surface-muted/80 px-3 py-1.5 rounded-full">
+              <p className="relative z-20 w-full max-w-[380px] mb-2 text-[11px] font-semibold text-muted text-center bg-surface-muted/80 px-3 py-1.5 rounded-full">
                 {t.room.needTwoPlayersHint}
               </p>
             )}
@@ -470,12 +495,12 @@ export default function RoomPage() {
                 onSwipe={handleSwipe}
               />
             ) : (
-              <div className="w-full max-w-[372px] my-auto rounded-[28px] p-6 card-elevated text-center flex flex-col items-center gap-4">
-                <div className="w-14 h-14 rounded-2xl bg-[#22C55E]/15 text-[#22C55E] flex items-center justify-center">
+              <div className="w-full max-w-[380px] my-auto rounded-3xl p-6 card-elevated text-center flex flex-col items-center gap-4">
+                <div className="w-14 h-14 rounded-2xl bg-[#10B981]/15 text-[#10B981] flex items-center justify-center">
                   <Clock className="w-7 h-7" />
                 </div>
                 <div>
-                  <h2 className="font-display text-xl font-extrabold">
+                  <h2 className="font-display text-xl font-extrabold tracking-tight">
                     {t.room.waitingOthersTitle}
                   </h2>
                   <p className="mt-1 text-sm text-muted font-medium">
@@ -500,7 +525,7 @@ export default function RoomPage() {
                         </span>
                         <div className="flex-1 h-2 rounded-full bg-surface-muted overflow-hidden">
                           <div
-                            className="h-full bg-[#22C55E] rounded-full transition-all duration-300"
+                            className="h-full bg-[#10B981] rounded-full transition-all duration-300"
                             style={{ width: `${pct}%` }}
                           />
                         </div>
@@ -515,7 +540,7 @@ export default function RoomPage() {
                 <button
                   type="button"
                   onClick={handleShowResultsNow}
-                  className="mt-2 w-full py-3.5 px-4 rounded-2xl bg-foreground text-background font-bold text-sm flex items-center justify-center gap-2 hover:opacity-90 active:scale-[0.98] transition cursor-pointer"
+                  className="mt-2 w-full py-3.5 px-4 rounded-2xl bg-foreground text-background font-display font-extrabold text-sm flex items-center justify-center gap-2 hover:opacity-90 active:scale-[0.97] transition-transform cursor-pointer"
                 >
                   <Trophy className="w-4 h-4" />
                   <span>{t.room.showResultsNow}</span>

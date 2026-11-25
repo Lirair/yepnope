@@ -1,3 +1,5 @@
+import type { SeasonalThemeId } from "@/lib/themes";
+
 export type Category = "food" | "watch" | "activity" | "custom";
 
 export type RoomStatus = "lobby" | "playing" | "matched" | "finished";
@@ -37,6 +39,7 @@ export interface CardItem {
 export interface RoomSettings {
   title?: string;
   locale?: Locale;
+  themeId?: SeasonalThemeId;
   foodTag?: FoodFilterTag | "all";
   watchMediaType?: WatchMediaType;
   watchProviders?: number[];
@@ -52,6 +55,7 @@ export interface Room {
   category: Category;
   status: RoomStatus;
   host_id: string;
+  theme_id?: SeasonalThemeId;
   settings: RoomSettings;
   deck: CardItem[];
   matched_card_ids: string[];
@@ -105,4 +109,5 @@ export interface CustomTemplate {
   subtitleEn: string;
   emoji: string;
   items: string[];
+  seasonalThemeId?: SeasonalThemeId;
 }

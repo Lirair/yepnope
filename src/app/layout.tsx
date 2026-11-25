@@ -1,19 +1,21 @@
 import type { Metadata, Viewport } from "next";
-import { Plus_Jakarta_Sans, Space_Grotesk } from "next/font/google";
+import { Outfit, Plus_Jakarta_Sans } from "next/font/google";
 import { AppProviders } from "@/components/AppProviders";
+import { SeasonalBackdrop } from "@/components/SeasonalBackdrop";
+import { THEME_BOOT_SCRIPT } from "@/lib/themes";
 import "./globals.css";
+
+const outfit = Outfit({
+  subsets: ["latin"],
+  variable: "--font-outfit",
+  weight: ["700", "800"],
+  display: "swap",
+});
 
 const plusJakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
   variable: "--font-jakarta",
-  weight: ["400", "500", "600", "700", "800"],
-  display: "swap",
-});
-
-const spaceGrotesk = Space_Grotesk({
-  subsets: ["latin"],
-  variable: "--font-space",
-  weight: ["600", "700"],
+  weight: ["400", "500", "600", "700"],
   display: "swap",
 });
 
@@ -47,8 +49,8 @@ export const viewport: Viewport = {
   userScalable: false,
   viewportFit: "cover",
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#F6F6F4" },
-    { media: "(prefers-color-scheme: dark)", color: "#0D0F12" },
+    { media: "(prefers-color-scheme: light)", color: "#FAF9F6" },
+    { media: "(prefers-color-scheme: dark)", color: "#0E0F13" },
   ],
 };
 
@@ -60,11 +62,20 @@ export default function RootLayout({
   return (
     <html
       lang="it"
-      className={`${plusJakarta.variable} ${spaceGrotesk.variable} h-full antialiased`}
+      data-theme="base"
+      className={`${outfit.variable} ${plusJakarta.variable} h-full antialiased`}
       suppressHydrationWarning
     >
-      <body className="min-h-full app-shell">
-        <AppProviders>{children}</AppProviders>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_BOOT_SCRIPT }} />
+      </head>
+      <body className="min-h-[100dvh] app-shell relative">
+        <AppProviders>
+          <SeasonalBackdrop />
+          <div className="relative z-10 min-h-[100dvh] flex flex-col">
+            {children}
+          </div>
+        </AppProviders>
       </body>
     </html>
   );

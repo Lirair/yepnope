@@ -84,16 +84,34 @@ export function generateFunNickname(locale: Locale = "it"): string {
 }
 
 const AVATAR_COLORS = [
-  "#22C55E",
+  "#10B981",
   "#F43F5E",
   "#0EA5E9",
   "#F59E0B",
-  "#14B8A6",
+  "#8B5CF6",
   "#EC4899",
-  "#3B82F6",
-  "#EF4444",
-  "#10B981",
+  "#14B8A6",
   "#F97316",
+  "#6366F1",
+  "#06B6D4",
+];
+
+export interface PastelAvatarPalette {
+  bg: string;
+  text: string;
+}
+
+const PASTEL_AVATARS: PastelAvatarPalette[] = [
+  { bg: "#D1FAE5", text: "#065F46" }, // Emerald pastel
+  { bg: "#FFE4E6", text: "#9F1239" }, // Rose pastel
+  { bg: "#FEF3C7", text: "#92400E" }, // Amber pastel
+  { bg: "#E0E7FF", text: "#3730A3" }, // Indigo pastel
+  { bg: "#CFFAFE", text: "#155E75" }, // Cyan pastel
+  { bg: "#FCE7F3", text: "#9D174D" }, // Pink pastel
+  { bg: "#FFEDD5", text: "#9A3412" }, // Orange pastel
+  { bg: "#EDE9FE", text: "#5B21B6" }, // Violet pastel
+  { bg: "#CCFBF1", text: "#115E59" }, // Teal pastel
+  { bg: "#E0F2FE", text: "#075985" }, // Sky pastel
 ];
 
 export function pickAvatarColor(seed: string): string {
@@ -103,6 +121,27 @@ export function pickAvatarColor(seed: string): string {
     hash |= 0;
   }
   return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
+}
+
+export function getPastelAvatar(nickname: string): PastelAvatarPalette {
+  const normalized = nickname.trim().toLowerCase() || "player";
+  let hash = 0;
+  for (let i = 0; i < normalized.length; i++) {
+    hash = (hash << 5) - hash + normalized.charCodeAt(i);
+    hash |= 0;
+  }
+  return PASTEL_AVATARS[Math.abs(hash) % PASTEL_AVATARS.length];
+}
+
+export function triggerHaptic(pattern: number | number[]): void {
+  if (typeof navigator === "undefined" || typeof navigator.vibrate !== "function") {
+    return;
+  }
+  try {
+    navigator.vibrate(pattern);
+  } catch {
+    // Ignore unsupported vibration environments
+  }
 }
 
 export function shuffleDeck<T>(items: T[]): T[] {

@@ -1,4 +1,140 @@
+import type { SeasonalThemeId } from "@/lib/themes";
 import type { CustomTemplate } from "@/types/yepnope";
+
+export const SEASONAL_TEMPLATES: Partial<
+  Record<SeasonalThemeId, CustomTemplate>
+> = {
+  natale: {
+    id: "seasonal-natale-movies",
+    seasonalThemeId: "natale",
+    title: "Film di Natale da guardare",
+    titleEn: "Christmas Movies to Watch",
+    subtitle: "15 classici pronti per la serata di Natale",
+    subtitleEn: "15 holiday classics ready to swipe",
+    emoji: "🎄",
+    items: [
+      "Mamma, ho perso l'aereo",
+      "Love Actually",
+      "Una poltrona per due",
+      "Elf",
+      "Klaus — I segreti del Natale",
+      "Il Grinch",
+      "L'amore non va in vacanza",
+      "Polar Express",
+      "Nightmare Before Christmas",
+      "A Christmas Carol",
+      "Die Hard — Trappola di cristallo",
+      "Miracolo nella 34ª strada",
+      "La vita è meravigliosa",
+      "Gremlins",
+      "Santa Clause",
+    ],
+  },
+  capodanno: {
+    id: "seasonal-capodanno-plans",
+    seasonalThemeId: "capodanno",
+    title: "Come festeggiamo Capodanno",
+    titleEn: "How We Celebrate New Year's Eve",
+    subtitle: "12 idee pronte per brindare insieme",
+    subtitleEn: "12 ready-to-swipe party & dinner ideas",
+    emoji: "🥂",
+    items: [
+      "Cenone a casa tra amici con giochi da tavolo",
+      "Festa in piazza con concerto e fuochi",
+      "Baita in montagna con camino e vin brulé",
+      "Serata in discoteca o club",
+      "Cena in ristorante con brindisi di mezzanotte",
+      "Fuga di 2 giorni in una capitale europea",
+      "Terme o spa rilassante sotto le stelle",
+      "Festa a tema anni '90 / 2000 a casa",
+      "Maratona film, pizza fatta in casa e pigiama",
+      "Agriturismo fuori porta con musica dal vivo",
+      "Rooftop bar con vista panoramica sui fuochi",
+      "Karaoke night e tombolata epica",
+    ],
+  },
+  "san-valentino": {
+    id: "seasonal-san-valentino-date",
+    seasonalThemeId: "san-valentino",
+    title: "Serata di San Valentino",
+    titleEn: "Valentine's Date Night",
+    subtitle: "12 idee romantiche pronte da votare",
+    subtitleEn: "12 romantic date ideas ready to swipe",
+    emoji: "💘",
+    items: [
+      "Cena romantica a lume di candela al ristorante",
+      "Cucinare insieme una cena gourmet a casa",
+      "Aperitivo al tramonto in un rooftop panoramico",
+      "Cinema + passeggiata serale con gelato",
+      "Percorso spa di coppia e massaggio",
+      "Degustazione di vini in enoteca",
+      "Serata film sul divano con sushi e candele",
+      "Concerto dal vivo o jazz club intimo",
+      "Picnic notturno sotto le stelle con plaid",
+      "Weekend a sorpresa fuori porta",
+      "Laboratorio di coppia (ceramica o cocktail)",
+      "Passeggiata nel centro storico + dolce in pasticceria",
+    ],
+  },
+  halloween: {
+    id: "seasonal-halloween-horror",
+    seasonalThemeId: "halloween",
+    title: "Maratona Horror di Halloween",
+    titleEn: "Halloween Horror Marathon",
+    subtitle: "15 film da brivido pronti da swipare",
+    subtitleEn: "15 spooky horror classics ready to swipe",
+    emoji: "🎃",
+    items: [
+      "Shining",
+      "Scream",
+      "Halloween — La notte delle streghe",
+      "L'esorcista",
+      "The Conjuring — L'evocazione",
+      "Scappa — Get Out",
+      "Hereditary — Le radici del male",
+      "It (2017)",
+      "A Quiet Place",
+      "Midsommar",
+      "The Ring",
+      "Nightmare — Dal profondo della notte",
+      "Sinister",
+      "La casa (Evil Dead)",
+      "Talk to Me",
+    ],
+  },
+  estate: {
+    id: "seasonal-estate-sea",
+    seasonalThemeId: "estate",
+    title: "Meta mare / weekend estivo",
+    titleEn: "Summer Beach / Weekend Escape",
+    subtitle: "15 località estive pronte da votare",
+    subtitleEn: "15 sunny destinations ready to swipe",
+    emoji: "☀️",
+    items: [
+      "Salento (Puglia)",
+      "Costa Smeralda (Sardegna)",
+      "Isola d'Elba",
+      "Costiera Amalfitana",
+      "Cinque Terre",
+      "Favignana (Sicilia)",
+      "Tropea (Calabria)",
+      "Riviera del Conero",
+      "Ibiza",
+      "Formentera",
+      "Maiorca",
+      "Santorini",
+      "Mykonos",
+      "Algarve (Portogallo)",
+      "Hvar (Croazia)",
+    ],
+  },
+};
+
+export function getSeasonalTemplate(
+  themeId: SeasonalThemeId
+): CustomTemplate | null {
+  return SEASONAL_TEMPLATES[themeId] ?? null;
+}
 
 export const CUSTOM_TEMPLATES: CustomTemplate[] = [
   {
@@ -86,4 +222,9 @@ export const CUSTOM_TEMPLATES: CustomTemplate[] = [
       "Bang!",
     ],
   },
+];
+
+export const ALL_CUSTOM_TEMPLATES: CustomTemplate[] = [
+  ...(Object.values(SEASONAL_TEMPLATES).filter(Boolean) as CustomTemplate[]),
+  ...CUSTOM_TEMPLATES,
 ];

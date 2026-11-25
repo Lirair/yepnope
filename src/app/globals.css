@@ -1,64 +1,349 @@
 @import "tailwindcss";
 
-:root {
-  --bg: #f6f6f4;
-  --surface: #ffffff;
-  --surface-muted: #efefec;
-  --ink: #111317;
-  --ink-muted: #5c6370;
-  --border: rgba(17, 19, 23, 0.09);
-  --yep: #22c55e;
-  --yep-strong: #16a34a;
-  --nope: #f43f5e;
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ============================================================================
+ * 1. SEMANTIC THEME TOKENS (Default: Base Light & Dark)
+ * ============================================================================ */
+:root,
+:root[data-theme="base"] {
+  --bg-canvas: #faf9f6;
+  --bg-surface: #ffffff;
+  --bg-surface-muted: #f2f0eb;
+  --text-primary: #111827;
+  --text-secondary: #6b7280;
+  --border-subtle: rgba(15, 23, 42, 0.08);
+
+  --accent-primary: #10b981;
+  --accent-primary-hover: #059669;
+  --accent-secondary: #f43f5e;
+  --accent-foreground: #ffffff;
+  --accent-glow: rgba(16, 185, 129, 0.25);
+
+  --yep-color: #10b981;
+  --yep-strong: #059669;
+  --yep-glow: rgba(16, 185, 129, 0.25);
+
+  --nope-color: #f43f5e;
   --nope-strong: #e11d48;
-  --card-shadow: 0 18px 40px -16px rgba(17, 19, 23, 0.16), 0 4px 12px -4px rgba(17, 19, 23, 0.06);
+  --nope-glow: rgba(244, 63, 94, 0.25);
+
+  --match-gradient-from: #f59e0b;
+  --match-gradient-to: #ec4899;
+
+  --card-shadow:
+    0 20px 42px -18px rgba(15, 23, 42, 0.14),
+    0 4px 14px -4px rgba(15, 23, 42, 0.06);
 }
 
-.dark {
-  --bg: #0d0f12;
-  --surface: #16191f;
-  --surface-muted: #1e222b;
-  --ink: #f8fafc;
-  --ink-muted: #94a3b8;
-  --border: rgba(255, 255, 255, 0.09);
-  --card-shadow: 0 22px 46px -14px rgba(0, 0, 0, 0.58), 0 6px 16px -4px rgba(0, 0, 0, 0.35);
+.dark,
+.dark[data-theme="base"] {
+  --bg-canvas: #0e0f13;
+  --bg-surface: #181a20;
+  --bg-surface-muted: #22252e;
+  --text-primary: #f9fafb;
+  --text-secondary: #9ca3af;
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --card-shadow:
+    0 24px 48px -16px rgba(0, 0, 0, 0.62),
+    0 6px 18px -4px rgba(0, 0, 0, 0.36);
+}
+
+/* ============================================================================
+ * 2. NATALE (1 Dic – 26 Dic): Avorio caldo / Blu notte + Rosso & Oro
+ * ============================================================================ */
+:root[data-theme="natale"] {
+  --bg-canvas: #fdfbf7;
+  --bg-surface: #ffffff;
+  --bg-surface-muted: #f5efe4;
+  --text-primary: #1c1917;
+  --text-secondary: #6b635b;
+  --border-subtle: rgba(217, 119, 6, 0.18);
+
+  --accent-primary: #dc2626;
+  --accent-primary-hover: #b91c1c;
+  --accent-secondary: #d97706;
+  --accent-foreground: #ffffff;
+  --accent-glow: rgba(220, 38, 38, 0.26);
+
+  --yep-color: #10b981;
+  --yep-strong: #059669;
+  --yep-glow: rgba(16, 185, 129, 0.28);
+
+  --nope-color: #f43f5e;
+  --nope-strong: #e11d48;
+  --nope-glow: rgba(244, 63, 94, 0.28);
+
+  --match-gradient-from: #dc2626;
+  --match-gradient-to: #d97706;
+}
+
+.dark[data-theme="natale"] {
+  --bg-canvas: #0b1320;
+  --bg-surface: #131f33;
+  --bg-surface-muted: #1b2b45;
+  --text-primary: #f8fafc;
+  --text-secondary: #9fb0c7;
+  --border-subtle: rgba(245, 158, 11, 0.22);
+  --card-shadow:
+    0 24px 48px -16px rgba(2, 6, 23, 0.72),
+    0 6px 18px -4px rgba(2, 6, 23, 0.44);
+}
+
+/* ============================================================================
+ * 3. CAPODANNO (27 Dic – 2 Gen): Dark Mode forzata + Oro Champagne & Viola Notte
+ * ============================================================================ */
+:root[data-theme="capodanno"],
+.dark[data-theme="capodanno"] {
+  --bg-canvas: #09090f;
+  --bg-surface: #14141f;
+  --bg-surface-muted: #1e1e2e;
+  --text-primary: #f9fafb;
+  --text-secondary: #a1a1b5;
+  --border-subtle: rgba(250, 204, 21, 0.25);
+
+  --accent-primary: #facc15;
+  --accent-primary-hover: #eab308;
+  --accent-secondary: #8b5cf6;
+  --accent-foreground: #09090f;
+  --accent-glow: rgba(250, 204, 21, 0.3);
+
+  --yep-color: #10b981;
+  --yep-strong: #059669;
+  --yep-glow: rgba(16, 185, 129, 0.3);
+
+  --nope-color: #f43f5e;
+  --nope-strong: #e11d48;
+  --nope-glow: rgba(244, 63, 94, 0.3);
+
+  --match-gradient-from: #facc15;
+  --match-gradient-to: #8b5cf6;
+
+  --card-shadow:
+    0 26px 52px -14px rgba(0, 0, 0, 0.78),
+    0 0 0 1px rgba(250, 204, 21, 0.1);
+}
+
+/* ============================================================================
+ * 4. SAN VALENTINO (8 Feb – 15 Feb): Rosa morbido / Borgogna + Lampone & Rubino
+ * ============================================================================ */
+:root[data-theme="san-valentino"] {
+  --bg-canvas: #fff5f7;
+  --bg-surface: #ffffff;
+  --bg-surface-muted: #fce7ee;
+  --text-primary: #27111a;
+  --text-secondary: #7a5263;
+  --border-subtle: rgba(236, 72, 153, 0.16);
+
+  --accent-primary: #ec4899;
+  --accent-primary-hover: #db2777;
+  --accent-secondary: #e11d48;
+  --accent-foreground: #ffffff;
+  --accent-glow: rgba(236, 72, 153, 0.28);
+
+  --yep-color: #10b981;
+  --yep-strong: #059669;
+  --yep-glow: rgba(16, 185, 129, 0.26);
+
+  --nope-color: #f43f5e;
+  --nope-strong: #e11d48;
+  --nope-glow: rgba(244, 63, 94, 0.26);
+
+  --match-gradient-from: #ec4899;
+  --match-gradient-to: #f59e0b;
+}
+
+.dark[data-theme="san-valentino"] {
+  --bg-canvas: #1a0b12;
+  --bg-surface: #26111c;
+  --bg-surface-muted: #341827;
+  --text-primary: #fff1f5;
+  --text-secondary: #c99aad;
+  --border-subtle: rgba(244, 114, 182, 0.2);
+  --card-shadow:
+    0 24px 48px -16px rgba(10, 2, 6, 0.75),
+    0 6px 18px -4px rgba(10, 2, 6, 0.45);
+}
+
+/* ============================================================================
+ * 5. HALLOWEEN (24 Ott – 1 Nov): Dark di default + Arancio Zucca & Viola Acido
+ * ============================================================================ */
+:root[data-theme="halloween"],
+.dark[data-theme="halloween"] {
+  --bg-canvas: #110e17;
+  --bg-surface: #1c1629;
+  --bg-surface-muted: #271f38;
+  --text-primary: #f9fafb;
+  --text-secondary: #b4a7cc;
+  --border-subtle: rgba(168, 85, 247, 0.22);
+
+  --accent-primary: #f97316;
+  --accent-primary-hover: #ea580c;
+  --accent-secondary: #a855f7;
+  --accent-foreground: #ffffff;
+  --accent-glow: rgba(249, 115, 22, 0.3);
+
+  --yep-color: #22c55e;
+  --yep-strong: #16a34a;
+  --yep-glow: rgba(34, 197, 94, 0.3);
+
+  --nope-color: #f43f5e;
+  --nope-strong: #e11d48;
+  --nope-glow: rgba(244, 63, 94, 0.3);
+
+  --match-gradient-from: #f97316;
+  --match-gradient-to: #a855f7;
+
+  --card-shadow:
+    0 26px 52px -16px rgba(5, 2, 12, 0.78),
+    0 6px 18px -4px rgba(5, 2, 12, 0.48);
+}
+
+/* Optional light override if user explicitly toggles sun icon on Halloween */
+:root[data-theme="halloween"]:not(.dark) {
+  --bg-canvas: #faf6ff;
+  --bg-surface: #ffffff;
+  --bg-surface-muted: #f2eafc;
+  --text-primary: #1b1229;
+  --text-secondary: #685880;
+  --border-subtle: rgba(168, 85, 247, 0.18);
+  --card-shadow:
+    0 20px 42px -18px rgba(88, 28, 135, 0.16),
+    0 4px 14px -4px rgba(88, 28, 135, 0.08);
+}
+
+/* ============================================================================
+ * 6. ESTATE (15 Giu – 31 Ago): Sabbia chiarissima + Turchese Mare & Giallo Sole
+ * ============================================================================ */
+:root[data-theme="estate"] {
+  --bg-canvas: #fffdf7;
+  --bg-surface: #ffffff;
+  --bg-surface-muted: #f3f7f8;
+  --text-primary: #0f172a;
+  --text-secondary: #5a6c7d;
+  --border-subtle: rgba(6, 182, 212, 0.16);
+
+  --accent-primary: #06b6d4;
+  --accent-primary-hover: #0891b2;
+  --accent-secondary: #f59e0b;
+  --accent-foreground: #ffffff;
+  --accent-glow: rgba(6, 182, 212, 0.28);
+
+  --yep-color: #10b981;
+  --yep-strong: #059669;
+  --yep-glow: rgba(16, 185, 129, 0.25);
+
+  --nope-color: #f43f5e;
+  --nope-strong: #e11d48;
+  --nope-glow: rgba(244, 63, 94, 0.25);
+
+  --match-gradient-from: #06b6d4;
+  --match-gradient-to: #f59e0b;
+}
+
+.dark[data-theme="estate"] {
+  --bg-canvas: #08151c;
+  --bg-surface: #10232d;
+  --bg-surface-muted: #17313f;
+  --text-primary: #f0f9ff;
+  --text-secondary: #8fb4c4;
+  --border-subtle: rgba(56, 189, 248, 0.18);
+  --card-shadow:
+    0 24px 48px -16px rgba(2, 12, 18, 0.72),
+    0 6px 18px -4px rgba(2, 12, 18, 0.44);
+}
+
+/* Backward-compatible variable aliases */
+:root {
+  --bg: var(--bg-canvas);
+  --surface: var(--bg-surface);
+  --surface-muted: var(--bg-surface-muted);
+  --ink: var(--text-primary);
+  --ink-muted: var(--text-secondary);
+  --border: var(--border-subtle);
+  --yep: var(--yep-color);
+  --nope: var(--nope-color);
+  --match-from: var(--match-gradient-from);
+  --match-to: var(--match-gradient-to);
 }
 
 @theme inline {
-  --color-background: var(--bg);
-  --color-foreground: var(--ink);
-  --color-surface: var(--surface);
-  --color-surface-muted: var(--surface-muted);
-  --color-muted: var(--ink-muted);
-  --color-yep: var(--yep);
-  --color-nope: var(--nope);
+  --color-background: var(--bg-canvas);
+  --color-foreground: var(--text-primary);
+  --color-surface: var(--bg-surface);
+  --color-surface-muted: var(--bg-surface-muted);
+  --color-muted: var(--text-secondary);
+  --color-accent: var(--accent-primary);
+  --color-accent-hover: var(--accent-primary-hover);
+  --color-accent-secondary: var(--accent-secondary);
+  --color-accent-fg: var(--accent-foreground);
+  --color-yep: var(--yep-color);
+  --color-yep-strong: var(--yep-strong);
+  --color-nope: var(--nope-color);
+  --color-nope-strong: var(--nope-strong);
+  --color-match-from: var(--match-gradient-from);
+  --color-match-to: var(--match-gradient-to);
   --font-sans: var(--font-jakarta), system-ui, -apple-system, sans-serif;
-  --font-display: var(--font-space), var(--font-jakarta), system-ui, sans-serif;
+  --font-display: var(--font-outfit), var(--font-jakarta), system-ui, sans-serif;
 }
 
 html,
 body {
-  background-color: var(--bg);
-  color: var(--ink);
+  background-color: var(--bg-canvas);
+  color: var(--text-primary);
   font-family: var(--font-sans);
-  overscroll-behavior-y: none;
+  overscroll-behavior: none;
+  touch-action: pan-y;
   -webkit-tap-highlight-color: transparent;
+  transition: background-color 220ms ease, color 220ms ease;
 }
 
 .app-shell {
   min-height: 100dvh;
+  padding-top: env(safe-area-inset-top, 0px);
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 .card-elevated {
-  background-color: var(--surface);
-  border: 1px solid var(--border);
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
   box-shadow: var(--card-shadow);
 }
 
 .surface-panel {
-  background-color: var(--surface);
-  border: 1px solid var(--border);
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+}
+
+.accent-glow {
+  box-shadow: 0 12px 28px -6px var(--accent-glow);
+}
+
+.yep-glow {
+  box-shadow: 0 12px 28px -6px var(--yep-glow);
+}
+
+.nope-glow {
+  box-shadow: 0 12px 28px -6px var(--nope-glow);
+}
+
+.match-gradient {
+  background-image: linear-gradient(
+    135deg,
+    var(--match-gradient-from),
+    var(--match-gradient-to)
+  );
+}
+
+.match-text-gradient {
+  background-image: linear-gradient(
+    135deg,
+    var(--match-gradient-from),
+    var(--match-gradient-to)
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 .no-scrollbar::-webkit-scrollbar {
@@ -68,4 +353,60 @@ body {
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+/* ============================================================================
+ * 7. SEASONAL MICRO-ANIMATIONS (Respects prefers-reduced-motion)
+ * ============================================================================ */
+@keyframes yepnope-snowfall {
+  0% {
+    transform: translate3d(0, -10vh, 0) rotate(0deg);
+    opacity: 0;
+  }
+  12% {
+    opacity: 0.78;
+  }
+  88% {
+    opacity: 0.68;
+  }
+  100% {
+    transform: translate3d(var(--snow-drift, 18px), 106dvh, 0) rotate(220deg);
+    opacity: 0;
+  }
+}
+
+@keyframes yepnope-twinkle {
+  0%,
+  100% {
+    opacity: 0.18;
+    transform: scale(0.85);
+  }
+  50% {
+    opacity: 0.72;
+    transform: scale(1.18);
+  }
+}
+
+.seasonal-snowflake {
+  animation: yepnope-snowfall var(--snow-duration, 10s) linear var(--snow-delay, 0s)
+    infinite;
+  will-change: transform, opacity;
+}
+
+.seasonal-twinkle {
+  animation: yepnope-twinkle var(--twinkle-duration, 3.6s) ease-in-out
+    var(--twinkle-delay, 0s) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .seasonal-snowflake,
+  .seasonal-twinkle {
+    animation: none !important;
+    display: none !important;
+  }
+
+  html,
+  body {
+    transition: none;
+  }
 }

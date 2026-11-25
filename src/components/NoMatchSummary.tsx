@@ -49,7 +49,7 @@ export function NoMatchSummary({ room, topOptions }: NoMatchSummaryProps) {
             <div
               key={item.card.id}
               className={`rounded-3xl p-4 surface-panel transition ${
-                isFirst ? "ring-2 ring-[#22C55E]/60 shadow-md" : ""
+                isFirst ? "ring-2 ring-[#10B981]/60 shadow-md" : ""
               }`}
             >
               <div className="flex items-center gap-3.5">
@@ -73,7 +73,7 @@ export function NoMatchSummary({ room, topOptions }: NoMatchSummaryProps) {
                   <span
                     className={`absolute top-1 left-1 w-6 h-6 rounded-full text-[11px] font-extrabold flex items-center justify-center ${
                       isFirst
-                        ? "bg-[#22C55E] text-white"
+                        ? "bg-[#10B981] text-white"
                         : "bg-black/70 text-white"
                     }`}
                   >
@@ -84,10 +84,10 @@ export function NoMatchSummary({ room, topOptions }: NoMatchSummaryProps) {
                 {/* Details + Agreement bar */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between gap-2">
-                    <h2 className="font-display font-bold text-base truncate">
+                    <h2 className="font-display font-bold text-base tracking-tight truncate">
                       {item.card.title}
                     </h2>
-                    <span className="shrink-0 text-sm font-extrabold text-[#22C55E]">
+                    <span className="shrink-0 text-sm font-extrabold text-[#10B981]">
                       {item.percentage}%
                     </span>
                   </div>
@@ -105,7 +105,7 @@ export function NoMatchSummary({ room, topOptions }: NoMatchSummaryProps) {
                         animate={{ width: `${Math.max(item.percentage, 6)}%` }}
                         transition={{ duration: 0.5, delay: idx * 0.1 }}
                         className={`h-full rounded-full ${
-                          isFirst ? "bg-[#22C55E]" : "bg-foreground/40"
+                          isFirst ? "bg-[#10B981]" : "bg-foreground/40"
                         }`}
                       />
                     </div>
@@ -127,7 +127,7 @@ export function NoMatchSummary({ room, topOptions }: NoMatchSummaryProps) {
             href={buildGoogleMapsUrl(winner.card.searchQuery || winner.card.title)}
             target="_blank"
             rel="noopener noreferrer"
-            className="w-full py-3.5 px-4 rounded-2xl bg-[#22C55E] hover:bg-[#16A34A] text-white font-bold text-sm flex items-center justify-center gap-2 shadow-md shadow-[#22C55E]/25 active:scale-[0.98] transition"
+            className="w-full py-3.5 px-4 rounded-2xl bg-[#10B981] hover:bg-[#059669] text-white font-display font-extrabold text-[15px] tracking-tight flex items-center justify-center gap-2 yep-glow active:scale-[0.97] transition-transform"
           >
             <MapPin className="w-4 h-4" />
             <span>
@@ -138,7 +138,7 @@ export function NoMatchSummary({ room, topOptions }: NoMatchSummaryProps) {
             href={buildDeliverooUrl(winner.card.searchQuery || winner.card.title)}
             target="_blank"
             rel="noopener noreferrer"
-            className="w-full py-3.5 px-4 rounded-2xl bg-[#00CCBC] hover:bg-[#00b5a7] text-slate-950 font-bold text-sm flex items-center justify-center gap-2 active:scale-[0.98] transition"
+            className="w-full py-3.5 px-4 rounded-2xl bg-[#00CCBC] hover:bg-[#00b5a7] text-slate-950 font-display font-extrabold text-[15px] tracking-tight flex items-center justify-center gap-2 active:scale-[0.97] transition-transform"
           >
             <ShoppingBag className="w-4 h-4" />
             <span>{t.room.orderDeliveroo}</span>
@@ -148,7 +148,7 @@ export function NoMatchSummary({ room, topOptions }: NoMatchSummaryProps) {
 
       <Link
         href="/"
-        className="w-full py-4 px-5 rounded-2xl bg-foreground text-background font-bold text-base flex items-center justify-center gap-2 hover:opacity-90 active:scale-[0.98] transition"
+        className="w-full py-4 px-5 rounded-2xl bg-foreground text-background font-display font-extrabold text-base tracking-tight flex items-center justify-center gap-2 hover:opacity-90 active:scale-[0.97] transition-transform"
       >
         <Plus className="w-5 h-5" />
         <span>{t.room.newRoom}</span>

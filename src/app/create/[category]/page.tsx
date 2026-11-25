@@ -18,7 +18,11 @@ import { TopBar } from "@/components/TopBar";
 import { useApp } from "@/components/AppProviders";
 import { FOOD_DECK, FOOD_FILTER_TAGS } from "@/data/food";
 import { ACTIVITIES_DECK, ACTIVITY_FILTER_OPTIONS } from "@/data/activities";
-import { CUSTOM_TEMPLATES } from "@/data/templates";
+import {
+  ALL_CUSTOM_TEMPLATES,
+  CUSTOM_TEMPLATES,
+  getSeasonalTemplate,
+} from "@/data/templates";
 import { IT_WATCH_PROVIDERS, WATCH_GENRES } from "@/lib/tmdb";
 import { createRoom } from "@/lib/roomService";
 import {
@@ -41,7 +45,7 @@ const VALID_CATEGORIES: Category[] = ["food", "watch", "activity", "custom"];
 export default function CreateRoomPage() {
   const params = useParams<{ category?: string }>();
   const router = useRouter();
-  const { locale, t } = useApp();
+  const { locale, t, activeSeasonalTheme, themeHydrated } = useApp();
 
   const rawCategory = params?.category ?? "food";
   const category: Category = VALID_CATEGORIES.includes(rawCategory as Category)
@@ -145,8 +149,18 @@ export default function CreateRoomPage() {
     setErrorMsg("");
   };
 
+  const featuredSeasonalTemplate = useMemo(() => {
+    if (!themeHydrated) return null;
+    return getSeasonalTemplate(activeSeasonalTheme.id);
+  }, [themeHydrated, activeSeasonalTheme.id]);
+
+  const orderedTemplates = useMemo(() => {
+    if (!featuredSeasonalTemplate) return CUSTOM_TEMPLATES;
+    return [featuredSeasonalTemplate, ...CUSTOM_TEMPLATES];
+  }, [featuredSeasonalTemplate]);
+
   const handleSelectTemplate = (templateId: string) => {
-    const tpl = CUSTOM_TEMPLATES.find((item) => item.id === templateId);
+    const tpl = ALL_CUSTOM_TEMPLATES.find((item) => item.id === templateId);
     if (!tpl) return;
     setSelectedTemplateId(tpl.id);
     setCustomTitle(locale === "en" ? tpl.titleEn : tpl.title);
@@ -194,7 +208,7 @@ export default function CreateRoomPage() {
           setSubmitting(false);
           return;
         }
-        const tpl = CUSTOM_TEMPLATES.find((item) => item.id === selectedTemplateId);
+        const tpl = ALL_CUSTOM_TEMPLATES.find((item) => item.id === selectedTemplateId);
         deck = customItems.map((text, idx) => ({
           id: `custom-${idx}-${text.toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 12)}`,
           category: "custom",
@@ -209,9 +223,11 @@ export default function CreateRoomPage() {
         category,
         hostNickname: finalNickname,
         deck,
+        themeId: activeSeasonalTheme.id,
         settings: {
           title: category === "custom" ? customTitle.trim() || undefined : undefined,
           locale,
+          themeId: activeSeasonalTheme.id,
           foodTag: category === "food" ? foodTag : undefined,
           watchMediaType: category === "watch" ? watchMediaType : undefined,
           watchProviders: category === "watch" ? watchProviders : undefined,
@@ -257,7 +273,7 @@ export default function CreateRoomPage() {
             </p>
           </div>
           {previewCount !== null && (
-            <span className="shrink-0 px-3 py-1 rounded-full text-xs font-extrabold bg-[#22C55E]/15 text-[#16A34A] dark:text-[#4ADE80]">
+            <span className="shrink-0 px-3 py-1 rounded-full text-xs font-extrabold bg-[#10B981]/15 text-[#059669] dark:text-[#34D399]">
               {previewCount} {t.setup.cardsReady}
             </span>
           )}
@@ -265,7 +281,7 @@ export default function CreateRoomPage() {
 
         <form onSubmit={handleCreateRoom} className="flex flex-col gap-4">
           {/* Host Nickname */}
-          <div className="rounded-[24px] p-4 surface-panel flex flex-col gap-2">
+          <div className="rounded-3xl p-4 surface-panel flex flex-col gap-2">
             <label
               htmlFor="host-nickname"
               className="text-xs font-bold uppercase tracking-wider text-muted"
@@ -280,15 +296,15 @@ export default function CreateRoomPage() {
                 value={nickname}
                 onChange={(e) => setNickname(e.target.value)}
                 placeholder={t.setup.nicknamePlaceholder}
-                className="flex-1 h-11 px-3.5 rounded-xl bg-surface-muted font-semibold text-sm focus:outline-none focus:ring-2 focus:ring-[#22C55E]"
+                className="flex-1 h-11 px-3.5 rounded-xl bg-surface-muted font-semibold text-sm focus:outline-none focus:ring-2 focus:ring-[#10B981]"
               />
               <button
                 type="button"
                 onClick={() => setNickname(generateFunNickname(locale))}
-                className="h-11 px-3.5 rounded-xl bg-surface-muted hover:opacity-80 active:scale-95 transition flex items-center gap-1.5 text-xs font-bold cursor-pointer shrink-0"
+                className="h-11 px-3.5 rounded-xl bg-surface-muted hover:opacity-85 active:scale-[0.97] transition-transform flex items-center gap-1.5 text-xs font-bold cursor-pointer shrink-0"
                 title={t.setup.randomName}
               >
-                <Dices className="w-4 h-4 text-[#22C55E]" />
+                <Dices className="w-4 h-4 text-[#10B981]" />
                 <span>{t.setup.randomName}</span>
               </button>
             </div>
@@ -296,7 +312,7 @@ export default function CreateRoomPage() {
 
           {/* MODE 1: FOOD FILTERS */}
           {category === "food" && (
-            <div className="rounded-[24px] p-4 surface-panel flex flex-col gap-3">
+            <div className="rounded-3xl p-4 surface-panel flex flex-col gap-3">
               <span className="text-xs font-bold uppercase tracking-wider text-muted">
                 {t.setup.foodFilterLabel}
               </span>
@@ -304,10 +320,10 @@ export default function CreateRoomPage() {
                 <button
                   type="button"
                   onClick={() => setFoodTag("all")}
-                  className={`px-3.5 py-2 rounded-full text-xs font-bold transition cursor-pointer ${
+                  className={`px-3.5 py-2 rounded-full text-xs font-bold active:scale-[0.97] transition cursor-pointer ${
                     foodTag === "all"
-                      ? "bg-[#22C55E] text-white shadow-sm"
-                      : "bg-surface-muted hover:opacity-80"
+                      ? "bg-[#10B981] text-white shadow-sm"
+                      : "bg-surface-muted hover:opacity-85"
                   }`}
                 >
                   {t.setup.allOptions} ({FOOD_DECK.length})
@@ -319,10 +335,10 @@ export default function CreateRoomPage() {
                       key={tag}
                       type="button"
                       onClick={() => setFoodTag(tag)}
-                      className={`px-3.5 py-2 rounded-full text-xs font-bold transition cursor-pointer ${
+                      className={`px-3.5 py-2 rounded-full text-xs font-bold active:scale-[0.97] transition cursor-pointer ${
                         active
-                          ? "bg-[#22C55E] text-white shadow-sm"
-                          : "bg-surface-muted hover:opacity-80"
+                          ? "bg-[#10B981] text-white shadow-sm"
+                          : "bg-surface-muted hover:opacity-85"
                       }`}
                     >
                       {tag}
@@ -337,7 +353,7 @@ export default function CreateRoomPage() {
           {category === "watch" && (
             <>
               {/* Movie vs TV Toggle */}
-              <div className="rounded-[24px] p-4 surface-panel flex flex-col gap-3">
+              <div className="rounded-3xl p-4 surface-panel flex flex-col gap-3">
                 <span className="text-xs font-bold uppercase tracking-wider text-muted">
                   {t.setup.watchTypeLabel}
                 </span>
@@ -345,7 +361,7 @@ export default function CreateRoomPage() {
                   <button
                     type="button"
                     onClick={() => setWatchMediaType("movie")}
-                    className={`py-3 px-4 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 transition cursor-pointer ${
+                    className={`py-3 px-4 rounded-2xl font-display font-bold text-sm flex items-center justify-center gap-2 active:scale-[0.97] transition cursor-pointer ${
                       watchMediaType === "movie"
                         ? "bg-foreground text-background shadow-sm"
                         : "bg-surface-muted hover:opacity-85"
@@ -357,7 +373,7 @@ export default function CreateRoomPage() {
                   <button
                     type="button"
                     onClick={() => setWatchMediaType("tv")}
-                    className={`py-3 px-4 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 transition cursor-pointer ${
+                    className={`py-3 px-4 rounded-2xl font-display font-bold text-sm flex items-center justify-center gap-2 active:scale-[0.97] transition cursor-pointer ${
                       watchMediaType === "tv"
                         ? "bg-foreground text-background shadow-sm"
                         : "bg-surface-muted hover:opacity-85"
@@ -370,7 +386,7 @@ export default function CreateRoomPage() {
               </div>
 
               {/* Streaming Providers multi-select */}
-              <div className="rounded-[24px] p-4 surface-panel flex flex-col gap-3">
+              <div className="rounded-3xl p-4 surface-panel flex flex-col gap-3">
                 <span className="text-xs font-bold uppercase tracking-wider text-muted">
                   {t.setup.platformsLabel}
                 </span>
@@ -382,10 +398,10 @@ export default function CreateRoomPage() {
                         key={provider.id}
                         type="button"
                         onClick={() => toggleProvider(provider.id)}
-                        className={`px-3.5 py-2 rounded-full text-xs font-bold flex items-center gap-1.5 transition cursor-pointer ${
+                        className={`px-3.5 py-2 rounded-full text-xs font-bold flex items-center gap-1.5 active:scale-[0.97] transition cursor-pointer ${
                           active
-                            ? "bg-[#22C55E] text-white shadow-sm"
-                            : "bg-surface-muted hover:opacity-80"
+                            ? "bg-[#10B981] text-white shadow-sm"
+                            : "bg-surface-muted hover:opacity-85"
                         }`}
                       >
                         {active && <Check className="w-3.5 h-3.5 stroke-[3]" />}
@@ -397,7 +413,7 @@ export default function CreateRoomPage() {
               </div>
 
               {/* Optional Genre */}
-              <div className="rounded-[24px] p-4 surface-panel flex flex-col gap-3">
+              <div className="rounded-3xl p-4 surface-panel flex flex-col gap-3">
                 <span className="text-xs font-bold uppercase tracking-wider text-muted">
                   {t.setup.genreLabel}
                 </span>
@@ -409,10 +425,10 @@ export default function CreateRoomPage() {
                         key={g.slug}
                         type="button"
                         onClick={() => setWatchGenre(g.slug)}
-                        className={`px-3.5 py-2 rounded-full text-xs font-bold transition cursor-pointer ${
+                        className={`px-3.5 py-2 rounded-full text-xs font-bold active:scale-[0.97] transition cursor-pointer ${
                           active
                             ? "bg-foreground text-background"
-                            : "bg-surface-muted hover:opacity-80"
+                            : "bg-surface-muted hover:opacity-85"
                         }`}
                       >
                         {locale === "en" ? g.labelEn : g.labelIt}
@@ -426,7 +442,7 @@ export default function CreateRoomPage() {
 
           {/* MODE 3: ACTIVITY QUICK TAGS */}
           {category === "activity" && (
-            <div className="rounded-[24px] p-4 surface-panel flex flex-col gap-3">
+            <div className="rounded-3xl p-4 surface-panel flex flex-col gap-3">
               <span className="text-xs font-bold uppercase tracking-wider text-muted">
                 {t.setup.activityFilterLabel}
               </span>
@@ -438,9 +454,9 @@ export default function CreateRoomPage() {
                       key={opt.id}
                       type="button"
                       onClick={() => toggleActivityTag(opt.id)}
-                      className={`w-full px-4 py-3 rounded-2xl text-sm font-bold flex items-center justify-between transition cursor-pointer ${
+                      className={`w-full px-4 py-3 rounded-2xl text-sm font-bold flex items-center justify-between active:scale-[0.97] transition cursor-pointer ${
                         active
-                          ? "bg-[#22C55E] text-white shadow-sm"
+                          ? "bg-[#10B981] text-white shadow-sm"
                           : "bg-surface-muted hover:opacity-85"
                       }`}
                     >
@@ -462,15 +478,53 @@ export default function CreateRoomPage() {
             </div>
           )}
 
-          {/* MODE 4: CUSTOM LISTS (SCRATCH + PASTE + 3 TEMPLATES) */}
+          {/* MODE 4: CUSTOM LISTS (SCRATCH + PASTE + SEASONAL FEATURED + 3 TEMPLATES) */}
           {category === "custom" && (
             <div className="flex flex-col gap-4">
+              {/* Featured Seasonal Event Quick-Pick Banner (always visible when a festive theme is active) */}
+              {featuredSeasonalTemplate && (
+                <button
+                  type="button"
+                  onClick={() => handleSelectTemplate(featuredSeasonalTemplate.id)}
+                  className={`w-full p-4 rounded-3xl text-left card-elevated flex items-center justify-between gap-3 active:scale-[0.97] transition cursor-pointer border-2 ${
+                    selectedTemplateId === featuredSeasonalTemplate.id
+                      ? "border-accent ring-2 ring-accent/25"
+                      : "border-accent/40 hover:border-accent"
+                  }`}
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <span className="w-12 h-12 rounded-2xl match-gradient text-white flex items-center justify-center text-2xl shrink-0 shadow-sm">
+                      {featuredSeasonalTemplate.emoji}
+                    </span>
+                    <div className="min-w-0">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider match-gradient text-white mb-1">
+                        <Sparkles className="w-2.5 h-2.5" />
+                        {t.setup.eventSpecialBadge}
+                      </span>
+                      <p className="font-display font-extrabold text-sm tracking-tight truncate">
+                        {locale === "en"
+                          ? featuredSeasonalTemplate.titleEn
+                          : featuredSeasonalTemplate.title}
+                      </p>
+                      <p className="text-xs text-muted font-medium truncate">
+                        {locale === "en"
+                          ? featuredSeasonalTemplate.subtitleEn
+                          : featuredSeasonalTemplate.subtitle}
+                      </p>
+                    </div>
+                  </div>
+                  <span className="shrink-0 text-xs font-extrabold px-2.5 py-1 rounded-full bg-accent text-accent-fg">
+                    {featuredSeasonalTemplate.items.length}
+                  </span>
+                </button>
+              )}
+
               {/* Tabs: Scratch vs Ready Templates */}
               <div className="grid grid-cols-2 gap-1.5 p-1.5 rounded-2xl bg-surface-muted">
                 <button
                   type="button"
                   onClick={() => setCustomTab("scratch")}
-                  className={`py-2.5 px-3 rounded-xl text-xs font-bold transition cursor-pointer ${
+                  className={`py-2.5 px-3 rounded-xl text-xs font-bold active:scale-[0.97] transition cursor-pointer ${
                     customTab === "scratch"
                       ? "bg-surface shadow-sm text-foreground"
                       : "text-muted hover:text-foreground"
@@ -481,38 +535,53 @@ export default function CreateRoomPage() {
                 <button
                   type="button"
                   onClick={() => setCustomTab("templates")}
-                  className={`py-2.5 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition cursor-pointer ${
+                  className={`py-2.5 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 active:scale-[0.97] transition cursor-pointer ${
                     customTab === "templates"
                       ? "bg-surface shadow-sm text-foreground"
                       : "text-muted hover:text-foreground"
                   }`}
                 >
-                  <Sparkles className="w-3.5 h-3.5 text-[#22C55E]" />
+                  <Sparkles className="w-3.5 h-3.5 text-accent" />
                   <span>{t.setup.customTabTemplates}</span>
                 </button>
               </div>
 
-              {/* Templates Picker */}
+              {/* Templates Picker (Seasonal Event pinned at top when active) */}
               {customTab === "templates" && (
                 <div className="flex flex-col gap-2.5">
-                  {CUSTOM_TEMPLATES.map((tpl) => {
+                  {orderedTemplates.map((tpl) => {
                     const selected = selectedTemplateId === tpl.id;
+                    const isSeasonal = Boolean(tpl.seasonalThemeId);
                     return (
                       <button
                         key={tpl.id}
                         type="button"
                         onClick={() => handleSelectTemplate(tpl.id)}
-                        className={`w-full p-4 rounded-2xl text-left surface-panel flex items-center justify-between gap-3 transition cursor-pointer ${
+                        className={`w-full p-4 rounded-2xl text-left surface-panel flex items-center justify-between gap-3 active:scale-[0.97] transition cursor-pointer ${
                           selected
-                            ? "ring-2 ring-[#22C55E]"
+                            ? "ring-2 ring-accent"
+                            : isSeasonal
+                            ? "border border-accent/45 hover:border-accent"
                             : "hover:opacity-90"
                         }`}
                       >
                         <div className="flex items-center gap-3 min-w-0">
-                          <span className="w-11 h-11 rounded-xl bg-surface-muted flex items-center justify-center text-2xl shrink-0">
+                          <span
+                            className={`w-11 h-11 rounded-xl flex items-center justify-center text-2xl shrink-0 ${
+                              isSeasonal
+                                ? "match-gradient text-white shadow-xs"
+                                : "bg-surface-muted"
+                            }`}
+                          >
                             {tpl.emoji}
                           </span>
                           <div className="min-w-0">
+                            {isSeasonal && (
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider match-gradient text-white mb-0.5">
+                                <Sparkles className="w-2.5 h-2.5" />
+                                {t.setup.eventSpecialBadge}
+                              </span>
+                            )}
                             <p className="font-display font-bold text-sm truncate">
                               {locale === "en" ? tpl.titleEn : tpl.title}
                             </p>
@@ -521,7 +590,13 @@ export default function CreateRoomPage() {
                             </p>
                           </div>
                         </div>
-                        <span className="shrink-0 text-xs font-extrabold px-2.5 py-1 rounded-full bg-surface-muted">
+                        <span
+                          className={`shrink-0 text-xs font-extrabold px-2.5 py-1 rounded-full ${
+                            isSeasonal
+                              ? "bg-accent text-accent-fg"
+                              : "bg-surface-muted"
+                          }`}
+                        >
                           {tpl.items.length}
                         </span>
                       </button>
@@ -531,7 +606,7 @@ export default function CreateRoomPage() {
               )}
 
               {/* Title + Quick Add / Paste List */}
-              <div className="rounded-[24px] p-4 surface-panel flex flex-col gap-3">
+              <div className="rounded-3xl p-4 surface-panel flex flex-col gap-3">
                 <div>
                   <label
                     htmlFor="custom-list-title"
@@ -546,7 +621,7 @@ export default function CreateRoomPage() {
                     value={customTitle}
                     onChange={(e) => setCustomTitle(e.target.value)}
                     placeholder={t.setup.customTitlePlaceholder}
-                    className="w-full h-11 px-3.5 rounded-xl bg-surface-muted font-semibold text-sm focus:outline-none focus:ring-2 focus:ring-[#22C55E]"
+                    className="w-full h-11 px-3.5 rounded-xl bg-surface-muted font-semibold text-sm focus:outline-none focus:ring-2 focus:ring-[#10B981]"
                   />
                 </div>
 
@@ -565,12 +640,12 @@ export default function CreateRoomPage() {
                       }
                     }}
                     placeholder={t.setup.addItemPlaceholder}
-                    className="flex-1 h-11 px-3.5 rounded-xl bg-surface-muted font-medium text-sm focus:outline-none focus:ring-2 focus:ring-[#22C55E]"
+                    className="flex-1 h-11 px-3.5 rounded-xl bg-surface-muted font-medium text-sm focus:outline-none focus:ring-2 focus:ring-[#10B981]"
                   />
                   <button
                     type="button"
                     onClick={handleAddSingleItem}
-                    className="h-11 px-4 rounded-xl bg-[#22C55E] text-white font-bold text-xs flex items-center gap-1 hover:bg-[#16A34A] active:scale-95 transition cursor-pointer shrink-0"
+                    className="h-11 px-4 rounded-xl bg-[#10B981] text-white font-display font-bold text-xs flex items-center gap-1 hover:bg-[#059669] active:scale-[0.97] transition-transform cursor-pointer shrink-0"
                   >
                     <Plus className="w-4 h-4" />
                     <span>{t.setup.addBtn}</span>
@@ -582,7 +657,7 @@ export default function CreateRoomPage() {
                   <button
                     type="button"
                     onClick={() => setShowPasteBox((v) => !v)}
-                    className="inline-flex items-center gap-1.5 text-xs font-bold text-[#16A34A] dark:text-[#4ADE80] hover:underline cursor-pointer"
+                    className="inline-flex items-center gap-1.5 text-xs font-bold text-[#059669] dark:text-[#34D399] hover:underline cursor-pointer"
                   >
                     <ClipboardPaste className="w-3.5 h-3.5" />
                     <span>{t.setup.pasteToggle}</span>
@@ -595,12 +670,12 @@ export default function CreateRoomPage() {
                         value={pasteText}
                         onChange={(e) => setPasteText(e.target.value)}
                         placeholder={t.setup.pastePlaceholder}
-                        className="w-full p-3 rounded-xl bg-surface-muted text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#22C55E] resize-none"
+                        className="w-full p-3 rounded-xl bg-surface-muted text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#10B981] resize-none"
                       />
                       <button
                         type="button"
                         onClick={handleApplyPaste}
-                        className="self-end px-4 py-2 rounded-xl bg-foreground text-background font-bold text-xs hover:opacity-90 active:scale-95 transition cursor-pointer"
+                        className="self-end px-4 py-2 rounded-xl bg-foreground text-background font-display font-bold text-xs hover:opacity-90 active:scale-[0.97] transition-transform cursor-pointer"
                       >
                         {t.setup.pasteApply}
                       </button>
@@ -663,7 +738,7 @@ export default function CreateRoomPage() {
             type="submit"
             id="create-room-submit"
             disabled={submitting}
-            className="mt-1 w-full py-4 px-6 rounded-2xl bg-[#22C55E] hover:bg-[#16A34A] text-white font-display font-extrabold text-base flex items-center justify-center gap-2 shadow-lg shadow-[#22C55E]/25 active:scale-[0.98] transition cursor-pointer disabled:opacity-60"
+            className="mt-1 w-full py-4 px-6 rounded-2xl bg-accent hover:bg-accent-hover text-accent-fg font-display font-extrabold text-base tracking-tight flex items-center justify-center gap-2 accent-glow active:scale-[0.97] transition-transform cursor-pointer disabled:opacity-60"
           >
             {submitting ? (
               <>

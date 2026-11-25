@@ -6,6 +6,7 @@ import {
   pickAvatarColor,
   shuffleDeck,
 } from "@/lib/utils";
+import type { SeasonalThemeId } from "@/lib/themes";
 import type {
   CardItem,
   Category,
@@ -62,6 +63,7 @@ export interface CreateRoomInput {
   hostNickname: string;
   deck: CardItem[];
   settings: RoomSettings;
+  themeId?: SeasonalThemeId;
 }
 
 export interface CreateRoomResult {
@@ -77,6 +79,7 @@ export async function createRoom(input: CreateRoomInput): Promise<CreateRoomResu
   const expiresAt = new Date(now.getTime() + 24 * 60 * 60 * 1000);
   const shuffledDeck = shuffleDeck(input.deck);
   const nickname = input.hostNickname.trim() || generateFunNickname(input.settings.locale ?? "it");
+  const resolvedThemeId: SeasonalThemeId = input.themeId ?? input.settings.themeId ?? "base";
 
   const room: Room = {
     id: roomId,
@@ -84,7 +87,11 @@ export async function createRoom(input: CreateRoomInput): Promise<CreateRoomResu
     category: input.category,
     status: "lobby",
     host_id: hostId,
-    settings: input.settings,
+    theme_id: resolvedThemeId,
+    settings: {
+      ...input.settings,
+      themeId: resolvedThemeId,
+    },
     deck: shuffledDeck,
     matched_card_ids: [],
     current_match_card_id: null,
@@ -112,7 +119,7 @@ export async function createRoom(input: CreateRoomInput): Promise<CreateRoomResu
     return { room, host };
   }
 
-  const { error: roomError } = await supabase.from("rooms").insert({
+  const basePayload = {
     id: room.id,
     code: room.code,
     category: room.category,
@@ -123,7 +130,18 @@ export async function createRoom(input: CreateRoomInput): Promise<CreateRoomResu
     matched_card_ids: room.matched_card_ids,
     current_match_card_id: room.current_match_card_id,
     expires_at: room.expires_at,
+  };
+
+  let { error: roomError } = await supabase.from("rooms").insert({
+    ...basePayload,
+    theme_id: resolvedThemeId,
   });
+
+  // Backwards-compatible fallback if live DB hasn't applied the theme_id migration yet
+  if (roomError && roomError.message.toLowerCase().includes("theme_id")) {
+    const retry = await supabase.from("rooms").insert(basePayload);
+    roomError = retry.error;
+  }
 
   if (roomError) {
     throw new Error(`Impossibile creare la stanza: ${roomError.message}`);

@@ -18,6 +18,7 @@ create table if not exists public.rooms (
   category text not null check (category in ('food', 'watch', 'activity', 'custom')),
   status text not null default 'lobby' check (status in ('lobby', 'playing', 'matched', 'finished')),
   host_id uuid not null,
+  theme_id text not null default 'base' check (theme_id in ('base', 'natale', 'capodanno', 'san-valentino', 'halloween', 'estate')),
   settings jsonb not null default '{}'::jsonb,
   deck jsonb not null default '[]'::jsonb,
   matched_card_ids text[] not null default '{}',
@@ -25,6 +26,10 @@ create table if not exists public.rooms (
   created_at timestamptz not null default now(),
   expires_at timestamptz not null default (now() + interval '24 hours')
 );
+
+-- Migrazione idempotente per database gia' esistenti
+alter table public.rooms
+  add column if not exists theme_id text not null default 'base';
 
 -- Tabella Partecipanti (zero login: solo nickname e sessione anonima per stanza)
 create table if not exists public.participants (

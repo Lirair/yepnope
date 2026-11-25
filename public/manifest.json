@@ -5,8 +5,8 @@
   "start_url": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#FAFAFB",
-  "theme_color": "#0D0F12",
+  "background_color": "#FAF9F6",
+  "theme_color": "#0E0F13",
   "lang": "it-IT",
   "categories": ["social", "entertainment", "lifestyle"],
   "icons": [
