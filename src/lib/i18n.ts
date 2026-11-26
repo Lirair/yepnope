@@ -61,6 +61,16 @@ export const dictionaries = {
       minTwoCards: "Aggiungi almeno 2 opzioni per creare la stanza",
       itemsCount: "voci nel mazzo",
       clearAll: "Svuota",
+      customDisclaimerPrefix: "Creando la lista confermi di rispettare i",
+      termsLinkLabel: "Termini d'Uso",
+      customDisclaimerSuffix:
+        "(vietati odio, violenza, bullismo, link e dati altrui). Le stanze si eliminano dopo 24h.",
+      moderationErrorHate:
+        "Contenuto non consentito: rimuovi termini offensivi, d'odio, violenza o bullismo.",
+      moderationErrorLink:
+        "I link/URL non sono consentiti nelle liste libere o nei nickname.",
+      moderationErrorPersonalData:
+        "Non inserire numeri di telefono o email per tutelare la privacy di tutti.",
     },
     room: {
       loading: "Caricamento stanza...",
@@ -98,6 +108,20 @@ export const dictionaries = {
       matchEyebrow: "È UN MATCH!",
       matchSubtitle: "Tutti d'accordo!",
       decidedWith: "Deciso con YepNope",
+      userCreatedList: "Lista creata dagli utenti",
+      reportButton: "Segnala",
+      reportTitle: "Segnala contenuto inappropriato",
+      reportSubtitle:
+        "Questa lista è stata creata dagli utenti. Se contiene odio, violenza, bullismo o dati altrui puoi segnalarla e oscurarla subito.",
+      reportReasonHate: "Odio, violenza o discriminazione",
+      reportReasonBullying: "Bullismo o diffamazione",
+      reportReasonPersonal: "Dati personali di terzi o spam",
+      reportReasonOther: "Altro contenuto inappropriato",
+      reportCancel: "Annulla",
+      reportSubmit: "Segnala e oscura",
+      reportedTitle: "Stanza segnalata e oscurata",
+      reportedDesc:
+        "Grazie per la segnalazione. Questa stanza è stata nascosta dal tuo dispositivo e verrà comunque eliminata automaticamente entro 24 ore.",
       continueSwiping: "Continua a swipare",
       newRoom: "Nuova stanza",
       searchMaps: "Apri su Google Maps",
@@ -172,6 +196,16 @@ export const dictionaries = {
       minTwoCards: "Add at least 2 options to create a room",
       itemsCount: "items in deck",
       clearAll: "Clear",
+      customDisclaimerPrefix: "By creating this list you agree to our",
+      termsLinkLabel: "Terms of Use",
+      customDisclaimerSuffix:
+        "(no hate, violence, bullying, links, or personal data). Rooms expire after 24h.",
+      moderationErrorHate:
+        "Content not allowed: please remove hate speech, violence, or bullying terms.",
+      moderationErrorLink:
+        "Links and URLs are not allowed in custom lists or nicknames.",
+      moderationErrorPersonalData:
+        "Please do not enter phone numbers or email addresses to protect privacy.",
     },
     room: {
       loading: "Loading room...",
@@ -209,6 +243,20 @@ export const dictionaries = {
       matchEyebrow: "IT'S A MATCH!",
       matchSubtitle: "Everyone agrees!",
       decidedWith: "Decided with YepNope",
+      userCreatedList: "User-created list",
+      reportButton: "Report",
+      reportTitle: "Report inappropriate content",
+      reportSubtitle:
+        "This list was created by users. If it contains hate, violence, bullying, or personal data, you can report and hide it right away.",
+      reportReasonHate: "Hate speech, violence, or discrimination",
+      reportReasonBullying: "Bullying or harassment",
+      reportReasonPersonal: "Personal data or spam",
+      reportReasonOther: "Other inappropriate content",
+      reportCancel: "Cancel",
+      reportSubmit: "Report & hide",
+      reportedTitle: "Room reported and hidden",
+      reportedDesc:
+        "Thank you for reporting. This room has been hidden on your device and will automatically expire within 24 hours.",
       continueSwiping: "Keep swiping",
       newRoom: "New room",
       searchMaps: "Open in Google Maps",

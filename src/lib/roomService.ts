@@ -292,6 +292,52 @@ export async function finishRoomNow(room: Room): Promise<void> {
     .eq("code", room.code);
 }
 
+export type RoomReportReason =
+  | "hate_violence"
+  | "bullying"
+  | "personal_data"
+  | "other";
+
+const HIDDEN_ROOM_PREFIX = "yepnope_hidden_room_";
+
+export function isRoomLocallyHidden(code: string): boolean {
+  if (typeof window === "undefined" || !code) return false;
+  try {
+    return localStorage.getItem(`${HIDDEN_ROOM_PREFIX}${code.toUpperCase()}`) === "1";
+  } catch {
+    return false;
+  }
+}
+
+export async function reportRoom(
+  room: Room,
+  reason: RoomReportReason
+): Promise<void> {
+  if (typeof window !== "undefined") {
+    try {
+      localStorage.setItem(
+        `${HIDDEN_ROOM_PREFIX}${room.code.toUpperCase()}`,
+        "1"
+      );
+    } catch {
+      // ignore storage errors
+    }
+  }
+
+  const supabase = getSupabaseClient(room.code);
+  if (!supabase) return;
+
+  try {
+    await supabase.from("room_reports").insert({
+      room_id: room.id,
+      room_code: room.code,
+      reason,
+    });
+  } catch {
+    // Keep reporting UX resilient even if optional room_reports table is not created yet
+  }
+}
+
 export interface CastVoteResult {
   matched: boolean;
   matchedCardId: string | null;

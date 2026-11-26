@@ -191,11 +191,16 @@ export default function HomePage() {
             );
           })}
         </section>
-        {/* Subtle Copyright & TMDB Attribution Footer */}
-        <footer className="text-center pt-1 pb-2 flex flex-col gap-0.5">
+        {/* Subtle Copyright, Terms & TMDB Attribution Footer */}
+        <footer className="text-center pt-1 pb-2 flex flex-col gap-1">
           <p className="text-[11px] font-medium text-muted/80">
             © 2026 YepNope · Carlo Contardi —{" "}
-            {locale === "en" ? "All rights reserved" : "Tutti i diritti riservati"}
+            <Link
+              href="/termini"
+              className="underline underline-offset-2 hover:text-foreground transition-colors"
+            >
+              {t.setup.termsLinkLabel}
+            </Link>
           </p>
           <p className="text-[10px] text-muted/65">
             {locale === "en"

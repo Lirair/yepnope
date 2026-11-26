@@ -178,10 +178,14 @@ export function MatchCelebration({
           </div>
 
           {/* Discrete Watermark Footer for Stories */}
-          <div className="relative z-10 pt-2 border-t border-white/10 px-1 flex items-center justify-between">
-            <span className="text-[11px] font-medium text-white/55">
-              {t.room.decidedWith}
-            </span>
+          <div className="relative z-10 pt-2 border-t border-white/10 px-1 flex items-center justify-between gap-2">
+            <div className="flex flex-col min-w-0">
+              <span className="text-[11px] font-medium text-white/55 truncate">
+                {card.category === "custom"
+                  ? t.room.userCreatedList
+                  : t.room.decidedWith}
+              </span>
+            </div>
             <Logo size="sm" />
           </div>
         </div>

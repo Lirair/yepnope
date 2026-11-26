@@ -12,12 +12,14 @@ import {
   Clock,
   Trophy,
   Plus,
+  ShieldCheck,
 } from "lucide-react";
 import { TopBar } from "@/components/TopBar";
 import { RoomLobby } from "@/components/RoomLobby";
 import { SwipeDeck } from "@/components/SwipeDeck";
 import { MatchCelebration } from "@/components/MatchCelebration";
 import { NoMatchSummary } from "@/components/NoMatchSummary";
+import { ReportRoomButton } from "@/components/ReportRoomButton";
 import { useApp } from "@/components/AppProviders";
 import {
   addDemoVirtualFriend,
@@ -25,12 +27,14 @@ import {
   fetchRoomSnapshot,
   finishRoomNow,
   isDemoMode,
+  isRoomLocallyHidden,
   joinRoom,
   resumeSwipingAfterMatch,
   startRoomSwiping,
   subscribeToRoom,
   triggerDemoFriendsVoteForCard,
 } from "@/lib/roomService";
+import { checkTextSafety } from "@/lib/moderation";
 import {
   computeTopOptions,
   generateFunNickname,
@@ -63,6 +67,7 @@ export default function RoomPage() {
   const [resuming, setResuming] = useState(false);
   const [localIndex, setLocalIndex] = useState<number>(0);
   const [copiedInline, setCopiedInline] = useState(false);
+  const [reportedHidden, setReportedHidden] = useState(false);
 
   // Initial load + realtime subscription
   useEffect(() => {
@@ -71,6 +76,17 @@ export default function RoomPage() {
     let cancelled = false;
     const savedSession = loadParticipantSession(rawCode);
     const lastNick = loadLastNickname();
+    if (isRoomLocallyHidden(rawCode)) {
+      Promise.resolve().then(() => {
+        if (!cancelled) {
+          setReportedHidden(true);
+          setLoading(false);
+        }
+      });
+      return () => {
+        cancelled = true;
+      };
+    }
 
     fetchRoomSnapshot(rawCode)
       .then((snap) => {
@@ -153,6 +169,21 @@ export default function RoomPage() {
   const handleJoinSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!snapshot || joining) return;
+
+    if (joinNickname.trim()) {
+      const nickSafety = checkTextSafety(joinNickname);
+      if (!nickSafety.ok) {
+        setJoinError(
+          nickSafety.reason === "link"
+            ? t.setup.moderationErrorLink
+            : nickSafety.reason === "personal_data"
+            ? t.setup.moderationErrorPersonalData
+            : t.setup.moderationErrorHate
+        );
+        return;
+      }
+    }
+
     setJoining(true);
     setJoinError("");
     try {
@@ -270,6 +301,32 @@ export default function RoomPage() {
     if (refreshed) setSnapshot(refreshed);
   };
 
+  // Reported & hidden room screen
+  if (reportedHidden) {
+    return (
+      <div className="min-h-[100dvh] flex flex-col">
+        <TopBar backHref="/" showThemePicker={false} />
+        <main className="flex-1 w-full max-w-md mx-auto px-4 flex flex-col items-center justify-center text-center gap-4">
+          <div className="w-16 h-16 rounded-3xl bg-accent/15 text-accent flex items-center justify-center">
+            <ShieldCheck className="w-8 h-8" />
+          </div>
+          <h1 className="font-display text-2xl font-extrabold tracking-tight">
+            {t.room.reportedTitle}
+          </h1>
+          <p className="text-sm text-muted max-w-[34ch] leading-relaxed">
+            {t.room.reportedDesc}
+          </p>
+          <Link
+            href="/"
+            className="mt-2 py-3.5 px-6 rounded-2xl bg-foreground text-background font-display font-extrabold text-sm inline-flex items-center gap-2 hover:opacity-90 active:scale-[0.97] transition-transform"
+          >
+            <span>{t.backHome}</span>
+          </Link>
+        </main>
+      </div>
+    );
+  }
+
   // Loading state
   if (loading) {
     return (
@@ -370,6 +427,14 @@ export default function RoomPage() {
               )}
             </button>
           </form>
+          {snapshot.room.category === "custom" && (
+            <div className="mt-4 flex justify-center">
+              <ReportRoomButton
+                room={snapshot.room}
+                onReported={() => setReportedHidden(true)}
+              />
+            </div>
+          )}
         </main>
       </div>
     );
@@ -586,6 +651,16 @@ export default function RoomPage() {
         {/* STATE 4: FINISHED / TOP 3 FALLBACK */}
         {room.status === "finished" && (
           <NoMatchSummary room={room} topOptions={topOptions} />
+        )}
+
+        {/* Notice & Action: discrete Report control for user-created Custom Lists */}
+        {room.category === "custom" && (
+          <div className="mt-auto pt-3 flex items-center justify-center">
+            <ReportRoomButton
+              room={room}
+              onReported={() => setReportedHidden(true)}
+            />
+          </div>
         )}
       </main>
     </div>

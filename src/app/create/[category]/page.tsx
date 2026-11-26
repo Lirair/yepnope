@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import {
   Dices,
@@ -25,6 +26,11 @@ import {
 } from "@/data/templates";
 import { IT_WATCH_PROVIDERS, WATCH_GENRES } from "@/lib/tmdb";
 import { createRoom } from "@/lib/roomService";
+import {
+  checkCustomDeckSafety,
+  checkTextSafety,
+  type ModerationReason,
+} from "@/lib/moderation";
 import {
   generateFunNickname,
   gradientFromText,
@@ -122,9 +128,20 @@ export default function CreateRoomPage() {
     );
   };
 
+  const getModerationErrorMessage = (reason?: ModerationReason): string => {
+    if (reason === "link") return t.setup.moderationErrorLink;
+    if (reason === "personal_data") return t.setup.moderationErrorPersonalData;
+    return t.setup.moderationErrorHate;
+  };
+
   const handleAddSingleItem = () => {
     const cleaned = singleItemInput.trim().slice(0, 80);
     if (!cleaned || customItems.length >= MAX_CUSTOM_ITEMS) return;
+    const safety = checkTextSafety(cleaned);
+    if (!safety.ok) {
+      setErrorMsg(getModerationErrorMessage(safety.reason));
+      return;
+    }
     if (!customItems.some((i) => i.toLowerCase() === cleaned.toLowerCase())) {
       setCustomItems((prev) => [...prev, cleaned].slice(0, MAX_CUSTOM_ITEMS));
     }
@@ -135,21 +152,37 @@ export default function CreateRoomPage() {
   const handleApplyPaste = () => {
     const parsed = parseMultilineList(pasteText);
     if (parsed.length === 0) return;
-    setCustomItems((prev) => {
-      const existingLower = new Set(prev.map((i) => i.toLowerCase()));
-      const merged = [...prev];
-      for (const item of parsed) {
-        if (merged.length >= MAX_CUSTOM_ITEMS) break;
-        if (!existingLower.has(item.toLowerCase())) {
-          merged.push(item);
-          existingLower.add(item.toLowerCase());
-        }
+
+    const safeItems: string[] = [];
+    let blockedReason: ModerationReason | undefined;
+
+    for (const item of parsed) {
+      const safety = checkTextSafety(item);
+      if (!safety.ok) {
+        blockedReason = blockedReason ?? safety.reason;
+      } else {
+        safeItems.push(item);
       }
-      return merged;
-    });
+    }
+
+    if (safeItems.length > 0) {
+      setCustomItems((prev) => {
+        const existingLower = new Set(prev.map((i) => i.toLowerCase()));
+        const merged = [...prev];
+        for (const item of safeItems) {
+          if (merged.length >= MAX_CUSTOM_ITEMS) break;
+          if (!existingLower.has(item.toLowerCase())) {
+            merged.push(item);
+            existingLower.add(item.toLowerCase());
+          }
+        }
+        return merged;
+      });
+    }
+
     setPasteText("");
     setShowPasteBox(false);
-    setErrorMsg("");
+    setErrorMsg(blockedReason ? getModerationErrorMessage(blockedReason) : "");
   };
 
   const featuredSeasonalTemplate = useMemo(() => {
@@ -179,6 +212,29 @@ export default function CreateRoomPage() {
     e.preventDefault();
     if (submitting) return;
     setErrorMsg("");
+
+    // Validate host nickname safety
+    if (nickname.trim()) {
+      const nickSafety = checkTextSafety(nickname);
+      if (!nickSafety.ok) {
+        setErrorMsg(getModerationErrorMessage(nickSafety.reason));
+        return;
+      }
+    }
+
+    // Validate custom deck safety before submitting
+    if (category === "custom") {
+      if (customItems.length < 2) {
+        setErrorMsg(t.setup.minTwoCards);
+        return;
+      }
+      const deckSafety = checkCustomDeckSafety(customTitle, customItems);
+      if (!deckSafety.ok) {
+        setErrorMsg(getModerationErrorMessage(deckSafety.reason));
+        return;
+      }
+    }
+
     setSubmitting(true);
 
     try {
@@ -733,6 +789,20 @@ export default function CreateRoomPage() {
           {errorMsg && (
             <p className="text-sm font-bold text-[#F43F5E] bg-[#F43F5E]/10 px-4 py-3 rounded-2xl text-center">
               {errorMsg}
+            </p>
+          )}
+
+          {/* Contextual Terms Disclaimer for Custom Lists */}
+          {category === "custom" && (
+            <p className="text-[11px] text-muted text-center leading-relaxed px-2">
+              {t.setup.customDisclaimerPrefix}{" "}
+              <Link
+                href="/termini"
+                className="font-bold text-foreground underline underline-offset-2 hover:text-accent transition-colors"
+              >
+                {t.setup.termsLinkLabel}
+              </Link>{" "}
+              {t.setup.customDisclaimerSuffix}
             </p>
           )}
 
