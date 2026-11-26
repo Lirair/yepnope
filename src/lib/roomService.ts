@@ -362,9 +362,8 @@ export async function castVote(params: {
       }
     }
 
-    if (!matched && snap.room.status === "playing") {
-      const allFinished =
-        activeParticipants.length > 0 && activeParticipants.every((p) => p.finished);
+    if (!matched && snap.room.status === "playing" && activeParticipants.length >= 2) {
+      const allFinished = activeParticipants.every((p) => p.finished);
       if (allFinished) {
         snap.room.status = "finished";
       }
@@ -403,7 +402,7 @@ export async function resumeSwipingAfterMatch(room: Room): Promise<void> {
     if (!snap) return;
     const activeParticipants = snap.participants.filter((p) => p.is_active);
     const allFinished =
-      activeParticipants.length > 0 && activeParticipants.every((p) => p.finished);
+      activeParticipants.length >= 2 && activeParticipants.every((p) => p.finished);
     snap.room.status = allFinished ? "finished" : "playing";
     snap.room.current_match_card_id = null;
     writeDemoSnapshot(snap);

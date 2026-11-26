@@ -496,15 +496,17 @@ export default function RoomPage() {
               />
             ) : (
               <div className="w-full max-w-[380px] my-auto rounded-3xl p-6 card-elevated text-center flex flex-col items-center gap-4">
-                <div className="w-14 h-14 rounded-2xl bg-[#10B981]/15 text-[#10B981] flex items-center justify-center">
+                <div className="w-14 h-14 rounded-2xl bg-accent/15 text-accent flex items-center justify-center">
                   <Clock className="w-7 h-7" />
                 </div>
                 <div>
                   <h2 className="font-display text-xl font-extrabold tracking-tight">
                     {t.room.waitingOthersTitle}
                   </h2>
-                  <p className="mt-1 text-sm text-muted font-medium">
-                    {t.room.waitingOthersDesc}
+                  <p className="mt-1 text-sm text-muted font-medium leading-relaxed">
+                    {activeParticipants.length < 2
+                      ? t.room.waitingSoloDesc
+                      : t.room.waitingOthersDesc}
                   </p>
                 </div>
 
@@ -525,7 +527,7 @@ export default function RoomPage() {
                         </span>
                         <div className="flex-1 h-2 rounded-full bg-surface-muted overflow-hidden">
                           <div
-                            className="h-full bg-[#10B981] rounded-full transition-all duration-300"
+                            className="h-full bg-accent rounded-full transition-all duration-300"
                             style={{ width: `${pct}%` }}
                           />
                         </div>
@@ -537,14 +539,34 @@ export default function RoomPage() {
                   })}
                 </div>
 
-                <button
-                  type="button"
-                  onClick={handleShowResultsNow}
-                  className="mt-2 w-full py-3.5 px-4 rounded-2xl bg-foreground text-background font-display font-extrabold text-sm flex items-center justify-center gap-2 hover:opacity-90 active:scale-[0.97] transition-transform cursor-pointer"
-                >
-                  <Trophy className="w-4 h-4" />
-                  <span>{t.room.showResultsNow}</span>
-                </button>
+                {activeParticipants.length < 2 ? (
+                  <button
+                    type="button"
+                    onClick={handleQuickShare}
+                    className="mt-2 w-full py-3.5 px-4 rounded-2xl bg-accent hover:bg-accent-hover text-accent-fg font-display font-extrabold text-sm flex items-center justify-center gap-2 accent-glow active:scale-[0.97] transition-transform cursor-pointer"
+                  >
+                    {copiedInline ? (
+                      <>
+                        <Check className="w-4 h-4 stroke-[3]" />
+                        <span>{t.room.copied}</span>
+                      </>
+                    ) : (
+                      <>
+                        <Share2 className="w-4 h-4" />
+                        <span>{t.room.shareButton}</span>
+                      </>
+                    )}
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={handleShowResultsNow}
+                    className="mt-2 w-full py-3.5 px-4 rounded-2xl bg-foreground text-background font-display font-extrabold text-sm flex items-center justify-center gap-2 hover:opacity-90 active:scale-[0.97] transition-transform cursor-pointer"
+                  >
+                    <Trophy className="w-4 h-4" />
+                    <span>{t.room.showResultsNow}</span>
+                  </button>
+                )}
               </div>
             )}
           </div>
