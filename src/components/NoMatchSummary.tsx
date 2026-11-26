@@ -10,6 +10,7 @@ import {
   buildDeliverooUrl,
   buildGoogleMapsUrl,
   gradientFromText,
+  isAllowedImageUrl,
 } from "@/lib/utils";
 
 interface NoMatchSummaryProps {
@@ -60,7 +61,7 @@ export function NoMatchSummary({ room, topOptions }: NoMatchSummaryProps) {
                     background: `linear-gradient(135deg, ${g1}, ${g2})`,
                   }}
                 >
-                  {item.card.image && item.card.category !== "custom" ? (
+                  {isAllowedImageUrl(item.card.image) && item.card.category !== "custom" ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
                       src={item.card.image}

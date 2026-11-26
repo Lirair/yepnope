@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { MOCK_WATCH_DECK } from "@/data/mockMovies";
-import { resolveGenreId } from "@/lib/tmdb";
+import { IT_WATCH_PROVIDERS, resolveGenreId } from "@/lib/tmdb";
 import { gradientFromText } from "@/lib/utils";
 import type { CardItem, WatchMediaType } from "@/types/yepnope";
+
+const ALLOWED_PROVIDER_IDS = new Set(IT_WATCH_PROVIDERS.map((p) => p.id));
+const MAX_CACHE_ENTRIES = 80;
 
 interface TmdbDiscoverResult {
   id: number;
@@ -28,6 +31,23 @@ interface CacheEntry {
 
 const CACHE_TTL_MS = 10 * 60 * 1000; // 10 minuti
 const memoryCache = new Map<string, CacheEntry>();
+
+function setCacheEntry(key: string, entry: CacheEntry) {
+  const now = Date.now();
+  if (memoryCache.size >= MAX_CACHE_ENTRIES) {
+    for (const [k, v] of memoryCache) {
+      if (v.expiresAt <= now) {
+        memoryCache.delete(k);
+      }
+    }
+    while (memoryCache.size >= MAX_CACHE_ENTRIES) {
+      const oldestKey = memoryCache.keys().next().value;
+      if (!oldestKey) break;
+      memoryCache.delete(oldestKey);
+    }
+  }
+  memoryCache.set(key, entry);
+}
 
 function buildMockDeck(
   mediaType: WatchMediaType,
@@ -68,10 +88,15 @@ export async function GET(request: NextRequest) {
   const genreSlug = searchParams.get("genre") ?? "all";
   const langParam = searchParams.get("lang") === "en" ? "en-US" : "it-IT";
 
-  const providerIds = providersParam
-    .split(",")
-    .map((p) => Number(p.trim()))
-    .filter((n) => Number.isInteger(n) && n > 0);
+  const providerIds = Array.from(
+    new Set(
+      providersParam
+        .split(",")
+        .slice(0, 10)
+        .map((p) => Number(p.trim()))
+        .filter((n) => Number.isInteger(n) && ALLOWED_PROVIDER_IDS.has(n))
+    )
+  );
 
   const genreId = resolveGenreId(genreSlug, typeParam);
   const cacheKey = `${typeParam}|${providerIds.sort((a, b) => a - b).join(",")}|${genreId}|${langParam}`;
@@ -92,7 +117,7 @@ export async function GET(request: NextRequest) {
 
   if (!apiKey) {
     const mockCards = buildMockDeck(typeParam, providerIds, genreId);
-    memoryCache.set(cacheKey, {
+    setCacheEntry(cacheKey, {
       expiresAt: Date.now() + CACHE_TTL_MS,
       cards: mockCards,
       source: "mock",
@@ -141,6 +166,7 @@ export async function GET(request: NextRequest) {
 
     const res = await fetch(tmdbUrl.toString(), {
       headers,
+      signal: AbortSignal.timeout(8000),
       next: { revalidate: 600 },
     });
 
@@ -194,7 +220,7 @@ export async function GET(request: NextRequest) {
       };
     });
 
-    memoryCache.set(cacheKey, {
+    setCacheEntry(cacheKey, {
       expiresAt: Date.now() + CACHE_TTL_MS,
       cards,
       source: "tmdb",

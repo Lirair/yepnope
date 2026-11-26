@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Star, ChevronDown, ChevronUp, X } from "lucide-react";
 import type { CardItem } from "@/types/yepnope";
-import { gradientFromText } from "@/lib/utils";
+import { gradientFromText, isAllowedImageUrl } from "@/lib/utils";
 import { useApp } from "@/components/AppProviders";
 
 interface CardVisualProps {
@@ -40,7 +40,8 @@ export function CardVisual({
   };
 
   const [gradStart, gradEnd] = card.gradient ?? gradientFromText(card.title);
-  const showImage = Boolean(card.image) && !imgError && card.category !== "custom";
+  const showImage =
+    isAllowedImageUrl(card.image) && !imgError && card.category !== "custom";
 
   // Custom text-only typographic card
   if (card.category === "custom") {

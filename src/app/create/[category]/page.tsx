@@ -42,6 +42,8 @@ import type {
 
 const VALID_CATEGORIES: Category[] = ["food", "watch", "activity", "custom"];
 
+const MAX_CUSTOM_ITEMS = 50;
+
 export default function CreateRoomPage() {
   const params = useParams<{ category?: string }>();
   const router = useRouter();
@@ -122,9 +124,9 @@ export default function CreateRoomPage() {
 
   const handleAddSingleItem = () => {
     const cleaned = singleItemInput.trim().slice(0, 80);
-    if (!cleaned) return;
+    if (!cleaned || customItems.length >= MAX_CUSTOM_ITEMS) return;
     if (!customItems.some((i) => i.toLowerCase() === cleaned.toLowerCase())) {
-      setCustomItems((prev) => [...prev, cleaned]);
+      setCustomItems((prev) => [...prev, cleaned].slice(0, MAX_CUSTOM_ITEMS));
     }
     setSingleItemInput("");
     setErrorMsg("");
@@ -137,6 +139,7 @@ export default function CreateRoomPage() {
       const existingLower = new Set(prev.map((i) => i.toLowerCase()));
       const merged = [...prev];
       for (const item of parsed) {
+        if (merged.length >= MAX_CUSTOM_ITEMS) break;
         if (!existingLower.has(item.toLowerCase())) {
           merged.push(item);
           existingLower.add(item.toLowerCase());

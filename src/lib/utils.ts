@@ -240,6 +240,26 @@ export function getInitials(name: string): string {
   return (parts[0][0] + parts[1][0]).toUpperCase();
 }
 
+const ALLOWED_IMAGE_HOSTS = new Set([
+  "images.unsplash.com",
+  "image.tmdb.org",
+]);
+
+/**
+ * Ensures card images only load from trusted media hosts (prevents IP-logger / tracking pixels).
+ */
+export function isAllowedImageUrl(url?: string): boolean {
+  if (!url) return false;
+  try {
+    const parsed = new URL(url);
+    return (
+      parsed.protocol === "https:" && ALLOWED_IMAGE_HOSTS.has(parsed.hostname)
+    );
+  } catch {
+    return false;
+  }
+}
+
 export function buildGoogleMapsUrl(query: string): string {
   return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
 }
