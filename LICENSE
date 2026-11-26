@@ -1,0 +1,12 @@
+Copyright (c) 2026 Carlo Contardi. Tutti i diritti riservati / All rights reserved.
+
+Il codice sorgente, il design dell'interfaccia, il logo, le illustrazioni e i contenuti
+originali di YepNope sono di proprietà esclusiva di Carlo Contardi.
+
+Senza previa autorizzazione scritta del titolare, è vietato copiare, modificare,
+ridistribuire, pubblicare, decompilare o utilizzare commercialmente in tutto o in parte
+questo software e i relativi asset.
+
+Le librerie di terze parti elencate in package.json restano soggette alle rispettive
+licenze open source. I metadati cinematografici e televisivi possono utilizzare l'API
+TMDB (questo prodotto utilizza l'API TMDB ma non è approvato né certificato da TMDB).

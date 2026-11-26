@@ -24,6 +24,9 @@ export const metadata: Metadata = {
   title: "YepNope — Decisioni di gruppo in un secondo",
   description:
     "Crea una stanza privata senza login, condividi il link su WhatsApp e fai swipe con gli amici fino al primo match unanime.",
+  authors: [{ name: "Carlo Contardi" }],
+  creator: "Carlo Contardi",
+  publisher: "Carlo Contardi",
   manifest: "/manifest.json",
   icons: {
     icon: "/icon.svg",

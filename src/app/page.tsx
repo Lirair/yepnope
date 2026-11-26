@@ -191,6 +191,18 @@ export default function HomePage() {
             );
           })}
         </section>
+        {/* Subtle Copyright & TMDB Attribution Footer */}
+        <footer className="text-center pt-1 pb-2 flex flex-col gap-0.5">
+          <p className="text-[11px] font-medium text-muted/80">
+            © 2026 YepNope · Carlo Contardi —{" "}
+            {locale === "en" ? "All rights reserved" : "Tutti i diritti riservati"}
+          </p>
+          <p className="text-[10px] text-muted/65">
+            {locale === "en"
+              ? "Movie data via TMDB API · Not endorsed or certified by TMDB"
+              : "Dati film via API TMDB · Non affiliato né certificato da TMDB"}
+          </p>
+        </footer>
       </main>
 
       {/* Fixed Bottom Discrete Pill Bar for Room Code */}

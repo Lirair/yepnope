@@ -2,6 +2,8 @@
   "name": "yepnope",
   "version": "0.1.0",
   "private": true,
+  "license": "UNLICENSED",
+  "author": "Carlo Contardi",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
