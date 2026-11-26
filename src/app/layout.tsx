@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Outfit, Plus_Jakarta_Sans } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import { AppProviders } from "@/components/AppProviders";
 import { SeasonalBackdrop } from "@/components/SeasonalBackdrop";
 import { THEME_BOOT_SCRIPT } from "@/lib/themes";
@@ -76,6 +77,7 @@ export default function RootLayout({
             {children}
           </div>
         </AppProviders>
+        <Analytics />
       </body>
     </html>
   );
